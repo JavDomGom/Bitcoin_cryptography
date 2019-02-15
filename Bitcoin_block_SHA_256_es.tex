@@ -79,12 +79,29 @@
     Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
     
     \subsection{headerLenght}
+    
+    
     \subsection{versionNumber}
+    Este dato puede cambiar de valor cuando se actualiza el software y cambia el número de la versión.
+    
     \subsection{previousBlockHash}
+    Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes.
+    
     \subsection{merkleRoot}
+    Este dato se modifica cada vez que una nueva transacción es aceptada. Tiene una longitud de 256 bits o 32 bytes.
+    
+    \begin{figure}[H]
+    \centering
+        \includegraphics[scale=0.55]{img/Merkle_tree_05_leaves_nodes}
+        \caption{Ejemplo de árbol de Merkle con 5 nodos hoja}
+    \end{figure}
+    
     \subsection{timeStamp}
+    
     \subsection{targetDifficulty}
+    
     \subsection{nonce}
+    
     \subsection{transactionCount}
     En el caso de transactionCount el tipo de dato es un \textit{entero de longitud variable}\footnote{https://en.bitcoin.it/wiki/Protocol\_documentation\#Variable\_length\_integer}.
     
@@ -101,6 +118,7 @@
         \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_x3}
         \caption{Los primeros 16 registros de la variable $W_{t}$ en los tres casos en los que se ha de ejecutar la función SHA-256.}
     \end{figure}
+    
 \section{Fecha en formato Unix}
     \begin{figure}[H]
     \centering
