@@ -30,7 +30,7 @@
         \hline
         uint32\_t & magicID & 4 bytes & Little-endian \\
         \hline
-        uint32\_t & headerLenght & 4 bytes &  \\
+        uint32\_t & headerLenght & 4 bytes & Big-endian \\
         \hline
         uint32\_t & versionNumber & 4 bytes & Little-endian \\
         \hline
@@ -44,12 +44,14 @@
         \hline
         uint32\_t & nonce & 4 bytes & Little-endian \\
         \hline
-        uint8/16/32/64\_t & transactionCount & 1, 3, 5 o 9 bytes &  \\
+        uint8/16/32/64\_t & transactionCount & 1, 3, 5 o 9 bytes & Big-endian*  \\
         \hline
     \end{tabular}
-    \caption{\textit{Datos de la cabecera de un bloque en la cadena de bloques de Bitcoin.}}
+    \caption{Datos de la cabecera de un bloque en la cadena de bloques de Bitcoin.}
     \label{table:0}
     \end{table}
+    
+    *En el caso de \textit{transactionCount}, los enteros grandes se codifican en formato \textit{Little-endian}.
     
     \subsection{magicID}
     Se trata de un dato de 4 bytes de longitud. Se establece como prefijo en cada uno de los mensajes entre los nodos para identificar la red de Bitcoin en la que se generan. La siguiente tabla muestra los diferentes valores que puede tener la variable magicID dependiendo de la red.
@@ -79,16 +81,16 @@
     Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
     
     \subsection{headerLenght}
-    
+    Este dato representa la longitud en bytes del bloque actual.
     
     \subsection{versionNumber}
-    Este dato puede cambiar de valor cuando se actualiza el software y cambia el número de la versión.
+    Este dato puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. El valor actual es 0x02000000 y se codifica en formato \textit{Little-endian}.
     
     \subsection{previousBlockHash}
-    Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes.
+    Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}.
     
     \subsection{merkleRoot}
-    Este dato se modifica cada vez que una nueva transacción es aceptada. Tiene una longitud de 256 bits o 32 bytes.
+    Este dato se modifica cada vez que una nueva transacción es aceptada. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}
     
     \begin{figure}[H]
     \centering
@@ -97,11 +99,12 @@
     \end{figure}
     
     \subsection{timeStamp}
-    Se trata de un dato de 4 bytes de longitud en un formato numérico llamado Epoch o Tiempo Unix. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00. 
+    Se trata de un dato de 4 bytes de longitud en un formato numérico llamado Epoch o Tiempo Unix. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00. Se codifica en formato \textit{Little-endian}. 
     
     \subsection{targetDifficulty}
     
     \subsection{nonce}
+    Se trata de un número aleatorio con una longitud de 32 bits codificado en formato \textit{Little-endian}.
     
     \subsection{transactionCount}
     En el caso de transactionCount el tipo de dato es un \textit{entero de longitud variable}\footnote{https://en.bitcoin.it/wiki/Protocol\_documentation\#Variable\_length\_integer}.
