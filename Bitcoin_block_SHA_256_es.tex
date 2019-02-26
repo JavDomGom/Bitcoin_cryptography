@@ -102,6 +102,15 @@
     Se trata de un dato de 4 bytes de longitud en un formato numérico llamado Epoch o Tiempo Unix. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00. Se codifica en formato \textit{Little-endian}. 
     
     \subsection{targetDifficulty}
+    Se trata de un número de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números que existen entre $0$ y $2^{256}-1$. Su función es la de definir una variable más a tener en cuenta a la hora de obtener el hash adecuado de un bloque antes de ser minado. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de la variable \textit{targetDifficulty} en ese momento. Así pues, si el \textit{hash} obtenido como candidato a generar un bloque fuera un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el hash candidato sea un \textit{hash} válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de la variable \textit{targetDifficulty}, en ese caso se ha de incrementar el valor de la variable \textit{nonce} y probar otra vez a generar un \textit{hash} nuevo.
+    
+    \begin{figure}[H]
+    \centering
+        \includegraphics[scale=0.39]{img/Bitcoin_TargetDifficulty.png}
+        \caption{Valor de la variable \textit{targetDifficulty} desde enero de 2009 hasta hoy.}
+    \end{figure}
+    
+    El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes Bitcoin de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas.
     
     \subsection{nonce}
     Se trata de un número aleatorio con una longitud de 32 bits codificado en formato \textit{Little-endian}.
