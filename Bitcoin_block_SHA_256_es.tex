@@ -3,6 +3,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{graphicx}
 \usepackage{minted}
+\usepackage{courier}
 
 \title{\textbf{Criptografía aplicada: Cálculo del hash SHA-256 de un bloque Bitcoin}}
 \author{Javier Domínguez Gómez \\
@@ -10,7 +11,6 @@
 \small{Fingerprint: 94AD 19F4 9005 EEB2 3384 C20F 5BDC C668 D664 8E2B}}
 \date{v0.1.03 - Febrero 2019}
 
-\usepackage{courier}
 \begin{document}
 \maketitle
 
@@ -101,48 +101,48 @@
     \subsection{timeStamp}
     Se trata de un dato de 4 bytes de longitud en un formato numérico llamado Epoch o Tiempo Unix. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00. Se codifica en formato \textit{Little-endian}.
     
-        \subsubsection{Fecha en formato Unix}
-        \begin{figure}[H]
-        \centering
-            \begin{minted}{c}
-        #include <stdio.h>
-        #include <time.h>
-        
-        int main(int argc, char *argv[]) {
-        
-        	int year, month, day, hour, minute, second;
-        	struct tm t;
-        	time_t tod;
-        
-        	printf("Year: ");
-        	scanf("%d", &year);
-        	printf("Month: ");
-        	scanf("%d", &month);
-        	printf("Day: ");
-        	scanf("%d", &day);
-        	printf("Hour: ");
-        	scanf("%d", &hour);
-        	printf("Minute: ");
-        	scanf("%d", &minute);
-        	printf("Second: ");
-        	scanf("%d", &second);
-        
-        	t.tm_year = year - 1900;
-        	t.tm_mon = month - 1;   // Values [0-11]
-        	t.tm_mday = day;
-        	t.tm_hour = hour + 1;   // GMT+1
-        	t.tm_min = minute;
-        	t.tm_sec = second;
-        	t.tm_isdst = 0;         // DST = 0
-        	tod = mktime(&t);
-        
-        	printf("Timestamp epoch: %ld\n", (long) tod);
-        }
-            \end{minted}
-        \end{figure}
+    Un ejemplo de cómo se puede calcular este dato es mediante el siguiente código C. Nótese que las horas se procesan como \textit{GMT+1}.
+    \begin{figure}[H]
+    \centering
+        \begin{minted}{c}
+    #include <stdio.h>
+    #include <time.h>
     
+    int main(int argc, char *argv[]) {
+    
+    	int year, month, day, hour, minute, second;
+    	struct tm t;
+    	time_t tod;
+    
+    	printf("Year: ");
+    	scanf("%d", &year);
+    	printf("Month: ");
+    	scanf("%d", &month);
+    	printf("Day: ");
+    	scanf("%d", &day);
+    	printf("Hour: ");
+    	scanf("%d", &hour);
+    	printf("Minute: ");
+    	scanf("%d", &minute);
+    	printf("Second: ");
+    	scanf("%d", &second);
+    
+    	t.tm_year = year - 1900;
+    	t.tm_mon = month - 1;   // Values [0-11]
+    	t.tm_mday = day;
+    	t.tm_hour = hour + 1;   // GMT+1
+    	t.tm_min = minute;
+    	t.tm_sec = second;
+    	t.tm_isdst = 0;         // DST = 0
+    	tod = mktime(&t);
+    
+    	printf("Timestamp epoch: %ld\n", (long) tod);
+    }
+        \end{minted}
+    \end{figure}
+
     \subsection{targetDifficulty}
-    Se trata de un número de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números que existen entre $0$ y $2^{256}-1$. Su función es la de definir una variable más a tener en cuenta a la hora de obtener el hash adecuado de un bloque antes de ser minado. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de la variable \textit{targetDifficulty} en ese momento. Así pues, si el \textit{hash} obtenido como candidato a generar un bloque fuera un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el hash candidato sea un \textit{hash} válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de la variable \textit{targetDifficulty}, en ese caso se ha de incrementar el valor de la variable \textit{nonce} y probar otra vez a generar un \textit{hash} nuevo.
+    Se trata de un número de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números que existen entre $0$ y $2^{256}-1$. Su función es la de definir una variable más a tener en cuenta a la hora de obtener el hash adecuado de un bloque antes de ser minado. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de la variable \textit{targetDifficulty} en ese momento. Así pues, si el \textit{hash} obtenido como candidato a generar un bloque fuera un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea un \textit{hash} válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de la variable \textit{targetDifficulty}, se ha de incrementar el valor de la variable \textit{nonce} y probar otra vez a generar un \textit{hash} nuevo.
     
     \begin{figure}[H]
     \centering
@@ -153,10 +153,10 @@
     El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes Bitcoin de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas.
     
     \subsection{nonce}
-    Se trata de un número aleatorio con una longitud de 32 bits codificado en formato \textit{Little-endian}.
+    Se trata de un número aleatorio con una longitud de 32 bits o 4 bytes codificado en formato \textit{Little-endian}.
     
     \subsection{transactionCount}
-    En el caso de transactionCount el tipo de dato es un \textit{entero de longitud variable}\footnote{https://en.bitcoin.it/wiki/Protocol\_documentation\#Variable\_length\_integer}.
+    En el caso de transactionCount el tipo de dato es un \textit{entero de longitud variable}\footnote{https://en.bitcoin.it/wiki/Protocol\_documentation\#Variable\_length\_integer}. Como el propio nombre indica, dependiendo de el número de transacciones que han sido procesadas tendrá un valor numérico u otro.
     
     \begin{figure}[H]
     \centering
