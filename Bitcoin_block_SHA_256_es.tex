@@ -181,30 +181,31 @@
 
 \section{Almacenamiento en ficheros}
     Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
-    
     \begin{figure}[H]
+    \scriptsize{\texttt{$\sim\$$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
+    
     \scriptsize{
-    \textbf{\texttt{00000000  \textcolor{red}{f9 be b4 d9} \textcolor{green}{83 3a 01 00}  \textcolor{darkTurquoise}{01 00 00 00 6b 84 16 95}  |.....:......k...|} \\
-    \texttt{00000010  \textcolor{darkTurquoise}{1e 11 9d c5 60 ec cf ee  71 dc fd 76 7f 7a 79 67}  |....`...q..v.zyg|} \\
-    \texttt{00000020  \textcolor{darkTurquoise}{e4 c2 eb ac 18 05 00 00  00 00 00 00 d9 54 48 66}  |.............THf|} \\
-    \texttt{00000030  \textcolor{darkTurquoise}{d8 2f 36 f8 14 df f6 0b  fa 93 55 a5 9d 40 e0 9a}  |./6.......U..@..|} \\
-    \texttt{00000040  \textcolor{darkTurquoise}{1b 70 dd 7b e6 52 f3 ff  f7 5a 48 77 4e 16 fa 4d}  |.p.\{.R...ZHwN..M|} \\
-    \texttt{00000050  \textcolor{darkTurquoise}{85 21 13 1a 4f 9f 56 7f}  \textcolor{blue}{ca} \textcolor{purple}{01 00 00 00 01 00 00}  |.!..O.V.........|} \\
-    \texttt{00000060  \textcolor{purple}{00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00}  |................|} \\
-    \texttt{00000070  \textcolor{purple}{00 00 00 00 00 00 00 00  00 00 00 00 00 00 ff ff}  |................|} \\
-    \texttt{00000080  \textcolor{purple}{ff ff 07 04 85 21 13 1a  01 3b ff ff ff ff 01 64}  |.....!...;.....d|} \\
-    \texttt{00000090  \textcolor{purple}{7d 51 37 01 00 00 00 43  41 04 6b 33 5b 20 34 cf}  |\}Q7....CA.k3[ 4.|} \\
-    \texttt{000000a0  \textcolor{purple}{ce df fc 45 db 40 a3 da  7d e6 53 f0 35 1d 3d 1c}  |...E.@..\}.S.5.=.|} \\
-    \texttt{000000b0  \textcolor{purple}{0f e2 de 40 fe 61 02 11  fc d4 98 2a e7 e2 6e ad}  |...@.a.....*..n.|} \\
-    \texttt{000000c0  \textcolor{purple}{de 95 dd d0 33 2e 38 66  51 36 aa 17 11 a8 5c 74}  |....3.8fQ6....\textbackslash t|} \\
-    \texttt{000000d0  \textcolor{purple}{0c d3 9d ff 63 7b 96 7b  60 d2 ac 00 00 00 00 01}  |....c\{.\{`.......|} \\
-    \texttt{000000e0  \textcolor{purple}{00 00 00 01 d9 9e 0a f4  96 b4 14 3f cf 2b f7 7d}  |...........?.+.\}|} \\
-    \texttt{000000f0  \textcolor{purple}{c3 0d af 92 77 db ea 0d  9a 08 c0 6a f9 da 04 91}  |....w......j....|} \\
-    \texttt{00000100  \textcolor{purple}{ce df 81 b6 01 00 00 00  8c 49 30 46 02 21 00 8a}  |.........I0F.!..|} \\
-    \texttt{00000110  \textcolor{purple}{ba 70 12 af 87 6f 3e 93  0a 56 02 fb 67} \ \ \ \ \ \ \ \ \ |.p...o>..V..g|}} \\
+    \texttt{059621c6  \textbf{\textcolor{red}{f9 be b4 d9} \textcolor{green}{bd 53 02 00}  \textcolor{darkTurquoise}{02 00 00 00 17 97 5b 97}}  |.....S........[.|} \\
+    \texttt{059621d6  \textbf{\textcolor{darkTurquoise}{c1 8e d1 f7 e2 55 ad f2  97 59 9b 55 33 0e da b8}}  |.....U...Y.U3...|} \\
+    \texttt{059621e6  \textbf{\textcolor{darkTurquoise}{78 03 c8 17 01 00 00 00  00 00 00 00 8a 97 29 5a}}  |x.............)Z|} \\
+    \texttt{059621f6  \textbf{\textcolor{darkTurquoise}{27 47 b4 f1 a0 b3 94 8d  f3 99 03 44 c0 e1 9f a6}}  |'G.........D....|} \\
+    \texttt{05962206  \textbf{\textcolor{darkTurquoise}{b2 b9 2b 3a 19 c8 e6 ba  dc 14 17 87 35 8b 05 53}}  |..+:........5..S|} \\
+    \texttt{05962216  \textbf{\textcolor{darkTurquoise}{53 5f 01 19 48 75 08 33}  \textcolor{blue}{63} \textcolor{purple}{01 00 00 00 01 00 00}}  |S\_..Hu.3c.......|} \\
+    \texttt{05962226  \textbf{\textcolor{purple}{00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00}}  |................|} \\
+    \texttt{05962236  \textbf{\textcolor{purple}{00 00 00 00 00 00 00 00  00 00 00 00 00 00 ff ff}}  |................|} \\
+    \texttt{05962246  \textbf{\textcolor{purple}{ff ff 60 03 63 60 04 06  2f 50 32 53 48 2f 04 35}}  |..`.c`../P2SH/.5|} \\
+    \texttt{05962256  \textbf{\textcolor{purple}{8b 05 53 08 44 04 f2 53  00 00 17 e4 46 52 2c fa}}  |..S.D..S....FR,.|} \\
+    \texttt{05962266  \textbf{\textcolor{purple}{be 6d 6d 69 06 88 fb 88  6c 0d f0 c8 7c bc 7e a4}}  |.mmi....l...|.~.|} \\
+    \texttt{05962276  \textbf{\textcolor{purple}{f7 f1 b5 c0 05 0b d0 ac  37 51 cf c9 97 d9 d6 97}}  |........7Q......|} \\
+    \texttt{05962286  \textbf{\textcolor{purple}{13 28 de 04 00 00 00 00  00 00 00 48 61 70 70 79}}  |.(.........Happy|} \\
+    \texttt{05962296  \textbf{\textcolor{purple}{20 4e 59 21 20 59 6f 75  72 73 20 47 48 61 73 68}}  | NY! Yours GHash|} \\
+    \texttt{059622a6  \textbf{\textcolor{purple}{2e 49 4f 00 00 00 00 01  cb 81 31 95 00 00 00 00}}  |.IO.......1.....|} \\
+    \texttt{059622b6  \textbf{\textcolor{purple}{19 76 a9 14 80 ad 90 d4  03 58 1f a3 bf 46 08 6a}}  |.v.......X...F.j|} \\
+    \texttt{059622c6  \textbf{\textcolor{purple}{91 b2 d9 d4 12 5d b6 c1  88 ac 00 00 00 00 01 00}}  |.....]..........|} \\
+    \texttt{059622d6  \textbf{\textcolor{purple}{00 00 01 7d 67 7c de 17  3f 8c bf 43 31 27 a8 5e}}  |...\}g|..?..C1'.\textasciicircum|}
     }
     \end{figure}
-
+    
 \section{Construcción de la cadena de entrada M}
     En este ejemplo se tratarán los datos reales del bloque $\#286819$ de la cadena de bloques de Bitcoin. Este bloque tiene el siguiente \textit{hash}.
     
