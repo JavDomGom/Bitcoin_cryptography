@@ -24,11 +24,11 @@
 \tableofcontents{}
 
 \section{Introducción}
-    Este documento describe en detalle las partes de la cabecera de un bloque cualquiera en la cadena de bloques de Bitcoin, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques.
+    Este documento describe en detalle cada una de las partes de las que se compone un bloque en la cadena de bloques de Bitcoin. También describe el tipo y la distribución de los datos en el bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques.
 
 \section{Estructura de datos de un bloque}
     \vspace{3mm}
-    Cada bloque de la cadena de bloques de Bitcoin contiene una estructura de datos que se puede categorizar en la siguiente tabla.
+    Cada bloque de la cadena de bloques de Bitcoin contiene de una serie de datos categorizados en la siguiente tabla.
     \begin{table}[H]
     \centering
     \begin{tabular}{| c | l | c | l |} 
@@ -88,7 +88,7 @@
     Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
     
     \subsection{headerLenght}
-    Este dato representa la longitud en bytes del bloque actual.
+    En un dato numérico de 4 bytes en formato hexadecimal y de valor variable que representa la longitud en bytes del bloque actual.
     
     \subsection{versionNumber}
     Este dato puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. El valor actual es 0x02000000 y se codifica en formato \textit{Little-endian}.
