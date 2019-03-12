@@ -28,7 +28,7 @@
 
 \section{Estructura de datos de un bloque}
     \vspace{3mm}
-    Cada bloque de la cadena de bloques de Bitcoin contiene de una serie de datos categorizados en la siguiente tabla.
+    Cada bloque de la cadena de bloques de Bitcoin se compone de una serie de datos ordenados meticulosamente y con una lógica que se explicará a lo largo del presente documento. Cada uno de estos datos tiene sus propios atributos, como puede ser el tipo de dato, el nombre, el tamaño que va a ocupar en memoria y el formato en el que este se representará. En la siguiente tabla se categorizan los más significativos.
     \begin{table}[H]
     \centering
     \begin{tabular}{| c | l | c | l |} 
@@ -54,121 +54,112 @@
         uint8/16/32/64\_t & transactionCount & 1, 3, 5 o 9 bytes & Big-endian*  \\
         \hline
     \end{tabular}
-    \caption{Datos de la cabecera de un bloque en la cadena de bloques de Bitcoin.}
+    \caption{Principales datos de un bloque en la cadena de bloques de Bitcoin.}
     \label{table:0}
     \end{table}
     
     *En el caso de \textit{transactionCount}, los enteros grandes se codifican en formato \textit{Little-endian}.
     
-    \subsection{magicID}
-    Se trata de un dato de 4 bytes de longitud. Se establece como prefijo en cada uno de los mensajes entre los nodos para identificar la red de Bitcoin en la que se generan. La siguiente tabla muestra los diferentes valores que puede tener la variable magicID dependiendo de la red.
+    \begin{enumerate}
+        \item \textbf{magicID}: En la red de Bitcoin se establecen conexiones entre los nodos con la finalidad de establecer una comunicación para el envío y recepción de datos o mensajes. Estos mensajes se envían mediante un canal en el que se apilan uno detrás de otro. Así pues, cuando se desarrolló el protocolo Bitcoin se vio conveniente añadir un prefijo en cada mensaje anteponiendo este dato de 4 bytes y así poder identificar fácilmente no solo la red de Bitcoin en la que se generan, si no también dónde empieza y termina cada mensaje que circula entre los diferentes nodos de la red. La siguiente tabla muestra los diferentes valores que puede tener la variable \textit{magicID} dependiendo de la red.
+        
+        \begin{table}[H]
+        \centering
+        \begin{tabular}{| c | c |} 
+            \hline
+            Red & magicID \\
+            \hline
+            Mainnet & \texttt{0xf9beb4d9} \\
+            \hline
+            Testnet & \texttt{0xfabfb5da} \\
+            \hline
+            Testnet3 & \texttt{0x0b110907} \\
+            \hline
+            Namecoin & \texttt{0xf9beb4fe} \\
+            \hline
+            Regtest & \texttt{0xfabfb5da} \\
+            \hline
+        \end{tabular}
+        \label{table:1}
+        \end{table}
+        
+        Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
     
-    \begin{table}[H]
-    \centering
-    \begin{tabular}{| c | c |} 
-        \hline
-        Red & magicID \\
-        \hline
-        Mainnet & \texttt{0xf9beb4d9} \\
-        \hline
-        Testnet & \texttt{0xfabfb5da} \\
-        \hline
-        Testnet3 & \texttt{0x0b110907} \\
-        \hline
-        Namecoin & \texttt{0xf9beb4fe} \\
-        \hline
-        Regtest & \texttt{0xfabfb5da} \\
-        \hline
-    \end{tabular}
-    \label{table:1}
-    \end{table}
+        \item \textbf{headerLenght}: En un dato numérico de 4 bytes en formato hexadecimal y de valor variable que representa la longitud en bytes del bloque actual.
+        
+        \item \textbf{versionNumber}: Este dato puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. El valor actual es 0x02000000 y se codifica en formato \textit{Little-endian}.
+        
+        \item \textbf{previousBlockHash}: Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}.
+        
+        \item \textbf{merkleRoot}: Este dato se modifica cada vez que una nueva transacción es aceptada. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}
+        
+        \begin{figure}[H]
+        \centering
+            \includegraphics[scale=0.55]{img/Merkle_tree_05_leaves_nodes}
+            \caption{Ejemplo de árbol de Merkle con 5 nodos hoja}
+        \end{figure}
+        
+        \item \textbf{timeStamp}: Se trata de un dato de 4 bytes de longitud en un formato numérico llamado Epoch o Tiempo Unix. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00. Se codifica en formato \textit{Little-endian}.
+        
+        Un ejemplo de cómo se puede calcular este dato es mediante el siguiente código C. Nótese que las horas se procesan como \textit{GMT+1}.
+        \begin{figure}[H]
+        \centering
+            \begin{minted}{c}
+        #include <stdio.h>
+        #include <time.h>
+        
+        int main(int argc, char *argv[]) {
+        
+        	int year, month, day, hour, minute, second;
+        	struct tm t;
+        	time_t tod;
+        
+        	printf("Year: ");
+        	scanf("%d", &year);
+        	printf("Month: ");
+        	scanf("%d", &month);
+        	printf("Day: ");
+        	scanf("%d", &day);
+        	printf("Hour: ");
+        	scanf("%d", &hour);
+        	printf("Minute: ");
+        	scanf("%d", &minute);
+        	printf("Second: ");
+        	scanf("%d", &second);
+        
+        	t.tm_year = year - 1900;
+        	t.tm_mon = month - 1;   // Values [0-11]
+        	t.tm_mday = day;
+        	t.tm_hour = hour + 1;   // GMT+1
+        	t.tm_min = minute;
+        	t.tm_sec = second;
+        	t.tm_isdst = 0;         // DST = 0
+        	tod = mktime(&t);
+        
+        	printf("Timestamp epoch: %ld\n", (long) tod);
+        }
+            \end{minted}
+        \end{figure}
     
-    No solo sirve como dato identificativo de una red en particular, también cumple la función de delimitador entre mensajes y entre los datos de cada bloque, pues estos vienen concatenados en cadenas hexadecimales uno a continuación de otro.
-    
-    Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
-    
-    \subsection{headerLenght}
-    En un dato numérico de 4 bytes en formato hexadecimal y de valor variable que representa la longitud en bytes del bloque actual.
-    
-    \subsection{versionNumber}
-    Este dato puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. El valor actual es 0x02000000 y se codifica en formato \textit{Little-endian}.
-    
-    \subsection{previousBlockHash}
-    Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}.
-    
-    \subsection{merkleRoot}
-    Este dato se modifica cada vez que una nueva transacción es aceptada. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}
-    
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.55]{img/Merkle_tree_05_leaves_nodes}
-        \caption{Ejemplo de árbol de Merkle con 5 nodos hoja}
-    \end{figure}
-    
-    \subsection{timeStamp}
-    Se trata de un dato de 4 bytes de longitud en un formato numérico llamado Epoch o Tiempo Unix. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00. Se codifica en formato \textit{Little-endian}.
-    
-    Un ejemplo de cómo se puede calcular este dato es mediante el siguiente código C. Nótese que las horas se procesan como \textit{GMT+1}.
-    \begin{figure}[H]
-    \centering
-        \begin{minted}{c}
-    #include <stdio.h>
-    #include <time.h>
-    
-    int main(int argc, char *argv[]) {
-    
-    	int year, month, day, hour, minute, second;
-    	struct tm t;
-    	time_t tod;
-    
-    	printf("Year: ");
-    	scanf("%d", &year);
-    	printf("Month: ");
-    	scanf("%d", &month);
-    	printf("Day: ");
-    	scanf("%d", &day);
-    	printf("Hour: ");
-    	scanf("%d", &hour);
-    	printf("Minute: ");
-    	scanf("%d", &minute);
-    	printf("Second: ");
-    	scanf("%d", &second);
-    
-    	t.tm_year = year - 1900;
-    	t.tm_mon = month - 1;   // Values [0-11]
-    	t.tm_mday = day;
-    	t.tm_hour = hour + 1;   // GMT+1
-    	t.tm_min = minute;
-    	t.tm_sec = second;
-    	t.tm_isdst = 0;         // DST = 0
-    	tod = mktime(&t);
-    
-    	printf("Timestamp epoch: %ld\n", (long) tod);
-    }
-        \end{minted}
-    \end{figure}
-
-    \subsection{targetDifficulty}
-    Se trata de un número de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números que existen entre $0$ y $2^{256}-1$. Su función es la de definir una variable más a tener en cuenta a la hora de obtener el hash adecuado de un bloque antes de ser minado. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de la variable \textit{targetDifficulty} en ese momento. Así pues, si el \textit{hash} obtenido como candidato a generar un bloque fuera un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea un \textit{hash} válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de la variable \textit{targetDifficulty}, se ha de incrementar el valor de la variable \textit{nonce} y probar otra vez a generar un \textit{hash} nuevo.
-    
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.39]{img/Bitcoin_TargetDifficulty.png}
-        \caption{Valor de la variable \textit{targetDifficulty} desde enero de 2009 hasta hoy.}
-    \end{figure}
-    
-    El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes Bitcoin de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas.
-    
-    \subsection{nonce}
-    Se trata de un número aleatorio con una longitud de 32 bits o 4 bytes codificado en formato \textit{Little-endian}.
-    
-    \subsection{transactionCount}
-    En el caso de transactionCount el tipo de dato es un \textit{entero de longitud variable}\footnote{https://en.bitcoin.it/wiki/Protocol\_documentation\#Variable\_length\_integer}. Como el propio nombre indica, dependiendo de el número de transacciones que han sido procesadas tendrá un valor numérico u otro.
+        \item \textbf{targetDifficulty}: Se trata de un número de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números que existen entre $0$ y $2^{256}-1$. Su función es la de definir una variable más a tener en cuenta a la hora de obtener el hash adecuado de un bloque antes de ser minado. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de la variable \textit{targetDifficulty} en ese momento. Así pues, si el \textit{hash} obtenido como candidato a generar un bloque fuera un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea un \textit{hash} válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de la variable \textit{targetDifficulty}, se ha de incrementar el valor de la variable \textit{nonce} y probar otra vez a generar un \textit{hash} nuevo.
+        
+        \begin{figure}[H]
+        \centering
+            \includegraphics[scale=0.39]{img/Bitcoin_TargetDifficulty.png}
+            \caption{Valor de la variable \textit{targetDifficulty} desde enero de 2009 hasta hoy.}
+        \end{figure}
+        
+        El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes Bitcoin de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas.
+        
+        \item \textbf{nonce}: Se trata de un número aleatorio con una longitud de 32 bits o 4 bytes codificado en formato \textit{Little-endian}.
+        
+        \item \textbf{transactionCount}: En el caso de transactionCount el tipo de dato es un entero de longitud variable. Como el propio nombre indica, dependiendo de el número de transacciones que han sido procesadas tendrá un valor numérico u otro.
+    \end{enumerate}
     
     \begin{figure}[H]
     \centering
         \includegraphics[scale=0.47]{img/Bitcoin_block_SHA_256_Block_Data}
-        \caption{Datos empleados para la obtención del \textit{hash} del bloque $286819$.}
+        \caption{Datos empleados para la obtención del \textit{hash} del bloque \#$286819$.}
     \end{figure}
     
     \vspace{3mm}
