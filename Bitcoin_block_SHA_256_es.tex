@@ -278,17 +278,55 @@ int main(int argc, char *argv[]) {
     
     Los datos correspondientes a la cabecera o \textit{header} son los siguientes:
     \begin{figure}[H]
-        \centering
-        \scriptsize{
-            $\begin{array}{ll}
-                \texttt{Version:} & \texttt{2} \\
-                \texttt{Prev. Block:} & \texttt{000000000000000117c80378b8da0e33559b5997f2ad55e2f7d18ec1975b9717} \\
-                \texttt{Merkle root:} & \texttt{871714dcbae6c8193a2bb9b2a69fe1c0440399f38d94b3a0f1b447275a29978a} \\
-                \texttt{Timestamp:} & \texttt{2014-02-20 04:57:25 (Epoch timestamp: 1392872245)} \\
-                \texttt{Bits:} & \texttt{419520339} \\
-                \texttt{Nonce:} & \texttt{856192328} \\
-            \end{array}$
-        }
-        \end{figure}
+    \centering
+    \scriptsize{
+        $\begin{array}{ll}
+            \texttt{Version:} & \texttt{2} \\
+            \texttt{Prev. Block:} & \texttt{000000000000000117c80378b8da0e33559b5997f2ad55e2f7d18ec1975b9717} \\
+            \texttt{Merkle root:} & \texttt{871714dcbae6c8193a2bb9b2a69fe1c0440399f38d94b3a0f1b447275a29978a} \\
+            \texttt{Timestamp:} & \texttt{2014-02-20 04:57:25 (Epoch timestamp: 1392872245)} \\
+            \texttt{Bits:} & \texttt{419520339} \\
+            \texttt{Nonce:} & \texttt{856192328} \\
+        \end{array}$
+    }
+    \end{figure}
     
+    Pasamos los datos decimales a formato hexadecimal:
+    \begin{figure}[H]
+    \centering
+    \scriptsize{
+        $\begin{array}{ll}
+            \texttt{Version:} & \texttt{00000002} \\
+            \texttt{Prev. Block:} & \texttt{000000000000000117c80378b8da0e33559b5997f2ad55e2f7d18ec1975b9717} \\
+            \texttt{Merkle root:} & \texttt{871714dcbae6c8193a2bb9b2a69fe1c0440399f38d94b3a0f1b447275a29978a} \\
+            \texttt{Timestamp:} & \texttt{53058B35} \\
+            \texttt{Bits:} & \texttt{19015F53} \\
+            \texttt{Nonce:} & \texttt{33087548} \\
+        \end{array}$
+    }
+    \end{figure}
+    
+    Se reorganizan los datos en formato Little Endian:
+    \begin{figure}[H]
+    \centering
+    \scriptsize{
+        $\begin{array}{ll}
+            \texttt{Version:} & \texttt{02000000} \\
+            \texttt{Prev. Block:} & \texttt{17975b97c18ed1f7e255adf297599b55330edab87803c8170100000000000000} \\
+            \texttt{Merkle root:} & \texttt{8a97295a2747b4f1a0b3948df3990344c0e19fa6b2b92b3a19c8e6badc141787} \\
+            \texttt{Timestamp:} & \texttt{358B0553} \\
+            \texttt{Bits:} & \texttt{535F0119} \\
+            \texttt{Nonce:} & \texttt{48750833} \\
+        \end{array}$
+    }
+    \end{figure}
+    
+    Finalmente se concatenan uno a continuación de otro, empezando por versión, hash del bloque anterior, merkle root, timestamp, bits y nonce:
+    \begin{figure}[H]
+    \centering
+    \scriptsize{
+        $\texttt{M = 0200000017975b97c18ed1f7e255adf297599b55330edab87803c81701000000000000008a97295a2747b4f1a0b3948df3990344c0e19fa6b2b92b3a19c8e6badc141787358b0553535f011948750833}$
+    }
+    \end{figure}
+
 \end{document}
