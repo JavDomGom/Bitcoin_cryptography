@@ -232,12 +232,6 @@ int main(int argc, char *argv[]) {
     \end{figure}
     
     \vspace{3mm}
-    En la siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_x3}
-        \caption{Los primeros 16 registros de la variable $W_{t}$ en los tres casos en los que se ha de ejecutar la función SHA-256.}
-    \end{figure}
 
 \section{Almacenamiento en ficheros}
     Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
@@ -321,12 +315,45 @@ int main(int argc, char *argv[]) {
     }
     \end{figure}
     
-    Finalmente se concatenan uno a continuación de otro, empezando por versión, hash del bloque anterior, merkle root, timestamp, bits y nonce:
+    Finalmente se concatenan uno a continuación de otro, empezando por versión, hash del bloque anterior, merkle root, timestamp, bits y nonce, formando una cadena de entrada $M$ de 160 carácteres hexadecimales con con un tamaño total de 640 bits.
+    
     \begin{figure}[H]
     \centering
-    \scriptsize{
-        $\texttt{M = 0200000017975b97c18ed1f7e255adf297599b55330edab87803c81701000000000000008a97295a2747b4f1a0b3948df3990344c0e19fa6b2b92b3a19c8e6badc141787358b0553535f011948750833}$
-    }
+        $\begin{array}{rcl}
+             M & = & \left \{
+            \begin{array}{c}
+                \texttt{0200000017975b97c18ed1f7e255adf2} \\
+                \texttt{97599b55330edab87803c81701000000} \\
+                \texttt{000000008a97295a2747b4f1a0b3948d} \\
+                \texttt{f3990344c0e19fa6b2b92b3a19c8e6ba} \\
+                \texttt{dc141787358b0553535f011948750833}
+            \end{array}
+            \right .
+        \end{array}$
+    \end{figure}
+    
+    Se segmenta la cadena de entrada $M$ en bloques de 32 bits:
+    \begin{figure}[H]
+    \centering
+        $\begin{array}{rcl}
+             M & = & \left \{
+            \begin{array}{c}
+                \texttt{02000000 + 17975b97 + c18ed1f7 + e255adf2} \\
+                \texttt{97599b55 + 330edab8 + 7803c817 + 01000000} \\
+                \texttt{00000000 + 8a97295a + 2747b4f1 + a0b3948d} \\
+                \texttt{f3990344 + c0e19fa6 + b2b92b3a + 19c8e6ba} \\
+                \texttt{dc141787 + 358b0553 + 535f0119 + 48750833}
+            \end{array}
+            \right .
+        \end{array}$
     \end{figure}
 
+\section{Los 16 registros de $W_t$}
+    En la siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
+    \begin{figure}[H]
+    \centering
+        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_x3}
+        \caption{Los primeros 16 registros de la variable $W_{t}$ en los tres casos en los que se ha de ejecutar la función SHA-256.}
+    \end{figure}
+    
 \end{document}
