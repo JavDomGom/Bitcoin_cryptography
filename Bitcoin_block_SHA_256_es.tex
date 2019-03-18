@@ -348,6 +348,14 @@ int main(int argc, char *argv[]) {
         \end{array}$
     \end{figure}
 
+\section{Longitud de la cadena $M$ de entrada}
+    Es necesario una vez que se ha obtenido la cadena de entrada $M$ en el punto anterior calcular la longitud en formato hexadecimal o base 16, es decir, 640 bits se representa como 280 en hexadecimal.
+    \begin{figure}[H]
+    \centering
+        $|M| = 280\ (640\ bits\ del\ mensaje\ original\ en\ hexadecimal)$
+    \end{figure}
+    Este dato se ha de reservar para el siguiente punto, pues se utilizará para completar los dos últimos registros de $W_t$.
+    
 \section{Los 16 registros de $W_t$}
     En la siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
     \begin{figure}[H]
