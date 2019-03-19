@@ -349,12 +349,12 @@ int main(int argc, char *argv[]) {
     \end{figure}
 
 \section{Longitud de la cadena $M$ de entrada}
-    Es necesario una vez que se ha obtenido la cadena de entrada $M$ en el punto anterior calcular la longitud en formato hexadecimal o base 16, es decir, 640 bits se representa como 280 en hexadecimal.
+    Una vez que se ha obtenido la cadena de entrada $M$ en el punto anterior es necesario calcular la longitud de la misma en formato hexadecimal o base 16, es decir, 640 bits que se representan con el valor 280 en hexadecimal.
     \begin{figure}[H]
     \centering
         $|M| = 280\ (640\ bits\ del\ mensaje\ original\ en\ hexadecimal)$
     \end{figure}
-    Este dato se ha de reservar para el siguiente punto, pues se utilizará para completar los dos últimos registros de $W_t$.
+    Este dato se ha de reservar para el siguiente punto, ya que será necesario para completar los registros $W_{14}$ y $W_{15}$ de la variable $W_t$ solo en la segunda y tercera ejecución de la función SHA-256.
     
 \section{Los 16 registros de $W_t$}
     En la siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
@@ -364,4 +364,21 @@ int main(int argc, char *argv[]) {
         \caption{Los primeros 16 registros de la variable $W_{t}$ en los tres casos en los que se ha de ejecutar la función SHA-256.}
     \end{figure}
     
+    \subsection{Primera ronda SHA-256: Ronda 0}
+    \begin{figure}[H]
+    \centering
+        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
+    \end{figure}
+    
+    \subsection{Segunda ronda SHA-256: Ronda 1}
+    \begin{figure}[H]
+    \centering
+        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_1}
+    \end{figure}
+    
+    \subsection{Tercera ronda SHA-256: Ronda 2}
+    \begin{figure}[H]
+    \centering
+        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_2}
+    \end{figure}
 \end{document}
