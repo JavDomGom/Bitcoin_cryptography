@@ -382,7 +382,15 @@ int main(int argc, char *argv[]) {
         \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
     \end{figure}
     
+    Después de los 64 ciclos criptográficos de $W_t$ en esta ronda 0 se obtiene el siguiente digest:
+    
+    \begin{figure}[H]
+    \centering
+        $\scriptsize{\texttt{dc6a3b8d0c69421acb1a5434e536f7d5c3c1b9e44cbb9b8f95f0172efc48d2df}}$
+    \end{figure}
+    
     \subsection{Segunda ronda SHA-256: Ronda 1}
+    En esta segunda ronda se han de rellenar los primeros 16 elementos de $W_t$ con los bits del mensaje $M$ original de 640 bits que no cabían en la ronda anterior, es decir dc141787+358b0553+535f0119+48750833, tal y como se muestra en la imagen.
     \begin{figure}[H]
     \centering
         \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_1}
