@@ -397,21 +397,22 @@ int main(int argc, char *argv[]) {
     \end{figure}
         
     A continuación hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
-            \begin{figure}[H]
-            \centering
-                $10000000_{2} = \texttt{80}_{16}$
-            \end{figure}
-        
-        Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
-            \begin{figure}[H]
-            \centering
-                $\texttt{486f6c61} + \texttt{206d756e} + \texttt{646f} + \texttt{80}$
-            \end{figure}
+        \begin{figure}[H]
+        \centering
+            $10000000_{2} = \texttt{80}_{16}$
+        \end{figure}
     
+    Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
+        \begin{figure}[H]
+        \centering
+            $\texttt{486f6c61} + \texttt{206d756e} + \texttt{646f} + \texttt{80}$
+        \end{figure}
+     Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$.
     \begin{figure}[H]
     \centering
         \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_1}
     \end{figure}
+    Para terminar de completar $W_{t}$ solo queda rellenar los últimos dos bloques de 32 bits $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 bits de longitud, en este caso es $280$.
     
     \subsection{Tercera ronda SHA-256: Ronda 2}
     \begin{figure}[H]
