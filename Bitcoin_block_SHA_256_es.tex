@@ -376,20 +376,49 @@ int main(int argc, char *argv[]) {
             G_{0} = \texttt{0x1f83d9ab} & H_{0} = \texttt{0x5be0cd19}
         \end{array}$
     \end{figure}
+    
     Los primeros 16 elementos del vector $W_t$ se han de rellenar con los primeros 512 bits de la cadena principal de entrada $M$, tal y como se muestra en la imagen.
     
     \begin{figure}[H]
         \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
     \end{figure}
     
-    Después de los 64 ciclos criptográficos de $W_t$ en esta ronda 0 se obtiene el siguiente digest:
+    Las 8 palabras iniciales irán cambiando en cada una de las 64 iteraciones de SHA-256, en este caso  en la última iteración tienen los siguientes valores a los que se le aplica una operación $mod\ 2^{32}$ con los 8 valores iniciales.
+    
+    \begin{figure}[H]
+    \centering
+        $\begin{array}{lll}
+            \texttt{0x6a09e667}\ (A_0)\ mod\ 2^{32}\ \texttt{0x72605526}\ (A_{63}) & = & \texttt{0xdc6a3b8d} \\
+            \texttt{0xbb67ae85}\ (B_0)\ mod\ 2^{32}\ \texttt{0x51019395}\ (B_{63}) & = & \texttt{0x0c69421a} \\
+            \texttt{0x3c6ef372}\ (C_0)\ mod\ 2^{32}\ \texttt{0x8eab60c2}\ (C_{63}) & = & \texttt{0xcb1a5434} \\
+            \texttt{0xa54ff53a}\ (D_0)\ mod\ 2^{32}\ \texttt{0x3fe7029b}\ (D_{63}) & = & \texttt{0xe536f7d5} \\
+            \texttt{0x510e527f}\ (E_0)\ mod\ 2^{32}\ \texttt{0x72b36765}\ (E_{63}) & = & \texttt{0xc3c1b9e4} \\
+            \texttt{0x9b05688c}\ (F_0)\ mod\ 2^{32}\ \texttt{0xb1b63303}\ (F_{63}) & = & \texttt{0x4cbb9b8f} \\
+            \texttt{0x1f83d9ab}\ (G_0)\ mod\ 2^{32}\ \texttt{0x766c3d83}\ (G_{63}) & = & \texttt{0x95f0172e} \\
+            \texttt{0x5be0cd19}\ (H_0)\ mod\ 2^{32}\ \texttt{0xa06805c6}\ (H_{63}) & = & \texttt{0xfc48d2df}
+        \end{array}$
+    \end{figure}
+    
+    Finalmente se concatenan los valores de los 8 resultados en esta ronda 0 obteniendo el siguiente digest resultante:
     
     \begin{figure}[H]
     \centering
         $\scriptsize{\texttt{dc6a3b8d0c69421acb1a5434e536f7d5c3c1b9e44cbb9b8f95f0172efc48d2df}}$
     \end{figure}
+    Se reserva este dato para realizar la segunda ronda SHA-256 en el siguiente punto.
     
     \subsection{Segunda ronda SHA-256: Ronda 1}
+    En esta segunda ronda se han volver a realizar los 64 ciclos criptográficos que realiza SHA-256 teniendo en cuenta que el valor de las 8 palabras iniciales $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ en la primera iteración tendrán por valor inicial cada uno de los segmentos de 32 bits correspondientes al \textit{hash} resultante de la primera ronda.
+    \begin{figure}[H]
+    \centering
+        $\begin{array}{ll}
+            A_{0} = \texttt{0xdc6a3b8d} & B_{0} = \texttt{0xc3c1b9e4} \\
+            C_{0} = \texttt{0x0c69421a} & D_{0} = \texttt{0x4cbb9b8f} \\
+            E_{0} = \texttt{0xcb1a5434} & F_{0} = \texttt{0x95f0172e} \\
+            G_{0} = \texttt{0xe536f7d5} & H_{0} = \texttt{0xfc48d2df}
+        \end{array}$
+    \end{figure}
+    
     En esta segunda ronda se se utilizarán los bits del mensaje $M$ original de 640 bits que no cabían en la ronda anterior.
     \begin{figure}[H]
     \centering
@@ -413,6 +442,28 @@ int main(int argc, char *argv[]) {
         \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_1}
     \end{figure}
     Para terminar de completar $W_{t}$ solo queda rellenar los últimos dos bloques de 32 bits $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 bits de longitud, en este caso es $280$.
+    
+    \begin{figure}[H]
+    \centering
+        $\begin{array}{lll}
+            \texttt{0xdc6a3b8d}\ (A_0)\ mod\ 2^{32}\ \texttt{0x9fa7eff9}\ (A_63) & = & \texttt{0x7c122b86} \\
+            \texttt{0x0c69421a}\ (B_0)\ mod\ 2^{32}\ \texttt{0x1c10fcdd}\ (B_63) & = & \texttt{0x287a3ef7} \\
+            \texttt{0xcb1a5434}\ (C_0)\ mod\ 2^{32}\ \texttt{0x1fa7f3ac}\ (C_63) & = & \texttt{0xeac247e0} \\
+            \texttt{0xe536f7d5}\ (D_0)\ mod\ 2^{32}\ \texttt{0xc82c78bc}\ (D_63) & = & \texttt{0xad637091} \\
+            \texttt{0xc3c1b9e4}\ (E_0)\ mod\ 2^{32}\ \texttt{0x093d1214}\ (E_63) & = & \texttt{0xccfecbf8} \\
+            \texttt{0x4cbb9b8f}\ (F_0)\ mod\ 2^{32}\ \texttt{0x12a67774}\ (F_63) & = & \texttt{0x5f621303} \\
+            \texttt{0x95f0172e}\ (G_0)\ mod\ 2^{32}\ \texttt{0x77ac085b}\ (G_63) & = & \texttt{0x0d9c1f89} \\
+            \texttt{0xfc48d2df}\ (H_0)\ mod\ 2^{32}\ \texttt{0x58cd0707}\ (H_63) & = & \texttt{0x5515d9e6}
+        \end{array}$
+    \end{figure}
+    
+    Finalmente se concatenan los valores de los 8 resultados en esta ronda 1 obteniendo el siguiente digest resultante:
+    
+    \begin{figure}[H]
+    \centering
+        $\scriptsize{\texttt{7c122b86287a3ef7eac247e0ad637091ccfecbf85f6213030d9c1f895515d9e6}}$
+    \end{figure}
+    Se reserva este dato para realizar la segunda ronda SHA-256 en el siguiente punto.
     
     \subsection{Tercera ronda SHA-256: Ronda 2}
     \begin{figure}[H]
