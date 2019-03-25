@@ -369,7 +369,7 @@ int main(int argc, char *argv[]) {
     
     \begin{figure}[H]
     \centering
-        $\begin{array}{ll}
+        $\begin{array}{rr}
             A_{0} = \texttt{0x6a09e667} & B_{0} = \texttt{0xbb67ae85} \\
             C_{0} = \texttt{0x3c6ef372} & D_{0} = \texttt{0xa54ff53a} \\
             E_{0} = \texttt{0x510e527f} & F_{0} = \texttt{0x9b05688c} \\
@@ -383,19 +383,37 @@ int main(int argc, char *argv[]) {
         \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
     \end{figure}
     
-    Las 8 palabras iniciales irán cambiando en cada una de las 64 iteraciones de SHA-256, en este caso  en la última iteración tienen los siguientes valores a los que se le aplica una operación $mod\ 2^{32}$ con los 8 valores iniciales.
+    Teniendo la cadena $M$ de entrada, las 8 palabras iniciales, que irán cambiando en cada una de las 64 iteraciones, y los 64 elementos del vector $W_t$ se puede comenzar a realizar las operaciones de la función SHA-256. El objetivo en esta primera ronda es obtener el primer \textit{hash}, necesario en la segunda ronda.
+    
+    \vspace{3mm}
+    
+    Cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
     
     \begin{figure}[H]
     \centering
         $\begin{array}{lll}
-            \texttt{0x6a09e667}\ (A_0)\ mod\ 2^{32}\ \texttt{0x72605526}\ (A_{63}) & = & \texttt{0xdc6a3b8d} \\
-            \texttt{0xbb67ae85}\ (B_0)\ mod\ 2^{32}\ \texttt{0x51019395}\ (B_{63}) & = & \texttt{0x0c69421a} \\
-            \texttt{0x3c6ef372}\ (C_0)\ mod\ 2^{32}\ \texttt{0x8eab60c2}\ (C_{63}) & = & \texttt{0xcb1a5434} \\
-            \texttt{0xa54ff53a}\ (D_0)\ mod\ 2^{32}\ \texttt{0x3fe7029b}\ (D_{63}) & = & \texttt{0xe536f7d5} \\
-            \texttt{0x510e527f}\ (E_0)\ mod\ 2^{32}\ \texttt{0x72b36765}\ (E_{63}) & = & \texttt{0xc3c1b9e4} \\
-            \texttt{0x9b05688c}\ (F_0)\ mod\ 2^{32}\ \texttt{0xb1b63303}\ (F_{63}) & = & \texttt{0x4cbb9b8f} \\
-            \texttt{0x1f83d9ab}\ (G_0)\ mod\ 2^{32}\ \texttt{0x766c3d83}\ (G_{63}) & = & \texttt{0x95f0172e} \\
-            \texttt{0x5be0cd19}\ (H_0)\ mod\ 2^{32}\ \texttt{0xa06805c6}\ (H_{63}) & = & \texttt{0xfc48d2df}
+            A_0 & mod\ 2^{32} & A_{63} \\
+            B_0 & mod\ 2^{32} & B_{63} \\
+            C_0 & mod\ 2^{32} & C_{63} \\
+            D_0 & mod\ 2^{32} & D_{63} \\
+            E_0 & mod\ 2^{32} & E_{63} \\
+            F_0 & mod\ 2^{32} & F_{63} \\
+            G_0 & mod\ 2^{32} & G_{63} \\
+            H_0 & mod\ 2^{32} & H_{63}
+        \end{array}$
+    \end{figure}
+    
+    \begin{figure}[H]
+    \centering
+        $\begin{array}{lllll}
+            \texttt{0x6a09e667} & mod\ 2^{32} & \texttt{0x72605526} & = & \texttt{0xdc6a3b8d} \\
+            \texttt{0xbb67ae85} & mod\ 2^{32} & \texttt{0x51019395} & = & \texttt{0x0c69421a} \\
+            \texttt{0x3c6ef372} & mod\ 2^{32} & \texttt{0x8eab60c2} & = & \texttt{0xcb1a5434} \\
+            \texttt{0xa54ff53a} & mod\ 2^{32} & \texttt{0x3fe7029b} & = & \texttt{0xe536f7d5} \\
+            \texttt{0x510e527f} & mod\ 2^{32} & \texttt{0x72b36765} & = & \texttt{0xc3c1b9e4} \\
+            \texttt{0x9b05688c} & mod\ 2^{32} & \texttt{0xb1b63303} & = & \texttt{0x4cbb9b8f} \\
+            \texttt{0x1f83d9ab} & mod\ 2^{32} & \texttt{0x766c3d83} & = & \texttt{0x95f0172e} \\
+            \texttt{0x5be0cd19} & mod\ 2^{32} & \texttt{0xa06805c6} & = & \texttt{0xfc48d2df}
         \end{array}$
     \end{figure}
     
@@ -411,7 +429,7 @@ int main(int argc, char *argv[]) {
     En esta segunda ronda se han volver a realizar los 64 ciclos criptográficos que realiza SHA-256 teniendo en cuenta que el valor de las 8 palabras iniciales $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ en la primera iteración tendrán por valor inicial cada uno de los segmentos de 32 bits correspondientes al \textit{hash} resultante de la primera ronda.
     \begin{figure}[H]
     \centering
-        $\begin{array}{ll}
+        $\begin{array}{rr}
             A_{0} = \texttt{0xdc6a3b8d} & B_{0} = \texttt{0xc3c1b9e4} \\
             C_{0} = \texttt{0x0c69421a} & D_{0} = \texttt{0x4cbb9b8f} \\
             E_{0} = \texttt{0xcb1a5434} & F_{0} = \texttt{0x95f0172e} \\
