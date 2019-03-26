@@ -365,7 +365,14 @@ int main(int argc, char *argv[]) {
     \end{figure}
     
     \subsection{Primera ronda SHA-256: Ronda 0}
-    La función \textit{hash} SHA-256 realiza 64 ciclos criptográficos en los que procesará una serie de cálculos en los que tiene en cuenta por un lado las 8 palabras hexadecimales de 32 bits asignadas como valor a las variables $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$, y por otro lado la variable $W_t$, que es un vector de 64 elementos ordenados por intervalos. En esta primera ronda criptográfica se han iniciar los valores de las variables $A_{0}$, $B_{0}$, $C_{0}$, $D_{0}$, $E_{0}$, $F_{0}$, $G_{0}$ y $H_{0}$ con los valores estándar de la función \textit{hash} SHA-256 en su primera iteración, es decir, los 32 primeros bits en hexadecimal o base 16 de la parte fraccionaria de las raíces cuadradas de los primeros 8 números primos.
+    La función \textit{hash} SHA-256 realiza 64 ciclos criptográficos en los que procesará una serie de cálculos en los que tiene en cuenta por un lado las 8 palabras hexadecimales de 32 bits asignadas como valor a las variables $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$, y por otro lado la variable $W_t$, que es un vector de 64 elementos ordenados por intervalos.
+    
+    \noindent\begin{minipage}{0.3\textwidth}
+    \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.6\textwidth}
+    En la primera ronda criptográfica se han iniciar los valores de las variables $A_{0}$, $B_{0}$, $C_{0}$, $D_{0}$, $E_{0}$, $F_{0}$, $G_{0}$ y $H_{0}$ con los valores estándar de la función \textit{hash} SHA-256 en su primera iteración, es decir, los 32 primeros bits en hexadecimal o base 16 de la parte fraccionaria de las raíces cuadradas de los primeros 8 números primos.
     
     \begin{figure}[H]
     \centering
@@ -377,11 +384,10 @@ int main(int argc, char *argv[]) {
         \end{array}$
     \end{figure}
     
-    Los primeros 16 elementos del vector $W_t$ se han de rellenar con los primeros 512 bits de la cadena principal de entrada $M$, tal y como se muestra en la imagen.
+    En una función SHA-256, cuando el tamaño de la cadena de entrada $M$ es igual o mayor que 512 bits se han de rellenar los primeros 16 elementos del vector $W_t$ con los primeros 512 bits de la cadena principal de entrada $M$, incluidos los elementos $W_{14}$ y $W_{15}$, tal y como se muestra en la imagen. El resto de la cadena $M$ se ha de reservar para la segunda ejecución de la función SHA-256 que se explicará en el siguiente punto.
+    \end{minipage}
     
-    \begin{figure}[H]
-        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
-    \end{figure}
+    \vspace{1mm}
     
     Teniendo la cadena $M$ de entrada, las 8 palabras iniciales, que irán cambiando en cada una de las 64 iteraciones, y los 64 elementos del vector $W_t$ se puede comenzar a realizar las operaciones de la función SHA-256. El objetivo en esta primera ronda es obtener el primer \textit{hash}, necesario en la segunda ronda.
     
@@ -426,7 +432,7 @@ int main(int argc, char *argv[]) {
     Se reserva este dato para realizar la segunda ronda SHA-256 en el siguiente punto.
     
     \subsection{Segunda ronda SHA-256: Ronda 1}
-    En esta segunda ronda se han volver a realizar los 64 ciclos criptográficos que realiza SHA-256 teniendo en cuenta que el valor de las 8 palabras iniciales $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ en la primera iteración tendrán por valor inicial cada uno de los segmentos de 32 bits correspondientes al \textit{hash} resultante de la primera ronda.
+    En la segunda ronda se han volver a realizar los 64 ciclos criptográficos que realiza SHA-256 teniendo en cuenta que el valor de las 8 palabras iniciales $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ en la primera iteración tendrán por valor inicial cada uno de los segmentos de 32 bits correspondientes al \textit{hash} resultante de la primera ronda.
     \begin{figure}[H]
     \centering
         $\begin{array}{rr}
