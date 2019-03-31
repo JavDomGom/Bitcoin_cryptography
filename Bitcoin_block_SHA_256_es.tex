@@ -373,7 +373,7 @@ int main(int argc, char *argv[]) {
             \includegraphics[scale=0.5]{img/SHA-256-Wt.png}
             \caption{Representación gráfica de $W_{t}$}
         \end{figure}
-    Las funciones  $\sigma_{0}$ y $\sigma_{1}$ realizan las siguientes operaciones lógicas de compresión.
+    Las funciones  $\sigma_{0}$ y $\sigma_{1}$ realizan las siguientes operaciones lógicas de compresión con cada uno de los bits de la palabra almacenada en el segmento de $W_t$ que procesan.
         \begin{figure}[H]
         \centering
             $\begin{array}{l}
@@ -392,19 +392,38 @@ int main(int argc, char *argv[]) {
         $\Downarrow$ \\
         $\sigma_{1}(W_{14})+W_{9}+\sigma_{0}(W_{1})+W_{0}$
     \end{figure}
+    
     En este ejemplo los segmentos $W_{14}$, $W_{9}$, $W_{1}$ y $W_{0}$ de la primera ronda (\textit{Ronda \texttt{\#}0}) tienen asignados los siguientes valores:
     \begin{figure}[H]
     \centering
-        $W_{14} = \texttt{0xb2b92b3a} \ W_{9} = \texttt{0x8a97295a}$ \\
-        $W_{1} = \texttt{0x17975b97} \ W_{0} = \texttt{0x02000000}$
+        $\begin{array}{rl}
+            W_{14} = \texttt{0xb2b92b3a} & W_{9} = \texttt{0x8a97295a} \\
+            W_{1}\  = \texttt{0x17975b97} & W_{0} = \texttt{0x02000000}
+        \end{array}$
     \end{figure}
     
-    Empecemos con la operación lógica de compresión $\sigma_{1}$, que aplica sobre el valor del segmento $W_{14}$.
+    A continuación se muestra una representación gráfica la operación lógica de compresión $\sigma_{1}$, que aplica sobre el valor del segmento $W_{14}$.
     
     \begin{figure}[H]
     \centering
-        \includegraphics[scale=0.41]{img/SHA-256-Wt_operacion_sigma1.png}
-        \caption{Cálculo bit a bit para $ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)$}
+        \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_sigma1.png}
+        \caption{Operación $ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)$ con cada bit.}
+    \end{figure}
+    
+    Tras el cálculo de $\sigma_{1}(W_{14})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{b0d6a141}$. Se ha de reservar este valor para calcular el resultado final. También se muestra la la representación gráfica la operación lógica de compresión $\sigma_{0}$, que aplica sobre el valor del segmento $W_{1}$.
+    
+    \begin{figure}[H]
+    \centering
+        \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_sigma0.png}
+        \caption{Operación $ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x)$ con cada bit.}
+    \end{figure}
+    
+    Tras el cálculo de $\sigma_{0}(W_{1})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{fa380020}$. Una vez realizados los cálculos necesarios para obtener el valor de $\sigma_{1}(W_{14})$ y $\sigma_{0}(W_{1})$ finalmente se ha de realizar la siguiente operación final.
+    
+    \begin{figure}[H]
+    \centering
+        \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_mod2_32_final.png}
+        \caption{Operación final $mod \ 2^{32} (\sigma_{1}(W_{14}), W_9, \sigma_{0}(W_{1}), W_0)$.}
     \end{figure}
     
     Estas normas también aplican a las reglas criptográficas de los bloques en el protocolo Bitcoin, solo que hay que tener en cuenta que la cadena de entrada $M$ en cada bloque tiene una longitud superior a 512 bits, lo que implica utilizar la función \textit{hash} SHA-256 tres veces, una por cada ronda, y el valor de la longitud de $M$ solo se aplicará en el esquema de relleno de la segunda y tercera ronda. En la primera ronda (\textit{Ronda \texttt{\#}0}) se rellenan los primeros 16 segmentos de la variable $W_t$ con todos los bytes en hexadecimal que quepan, es decir, los primeros 512 bits de $M$, rellenando también los segmentos $W_{14}$ y $W_{15}$. Los 128 bits restantes de la cadena de entrada $M$ que no caben en esta primera ronda se reservan para los primeros 4 registros de $W_t$ de la segunda ronda. Tras la segunda ronda (\textit{Ronda \texttt{\#}1}) se obtiene un \textit{digest} de 256 bits que se utiliza para rellenar los primeros 8 segmentos de $W_t$ en la tercera y última ronda (\textit{Ronda \texttt{\#}2}). La siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
