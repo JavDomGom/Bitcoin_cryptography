@@ -26,9 +26,13 @@
 
 \section{Introducción}
     Este documento describe en detalle cada una de las partes de las que se compone un bloque en la cadena de bloques de Bitcoin. También describe el tipo y la distribución de los datos en el bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques.
+    
+    Los datos del bloque que se utilizarán en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}.
 
 \section{Estructura de datos de un bloque}
+    
     \vspace{3mm}
+    
     Cada bloque de la cadena de bloques de Bitcoin se compone de una serie de datos ordenados meticulosamente y con una lógica definida que se explicará en los siguientes puntos. Cada uno de estos datos tiene sus propios atributos, como puede ser el tipo de dato, el nombre, el tamaño que ocupa en memoria y el formato en el que este se representará. En la siguiente tabla se categorizan los más significativos.
     \begin{table}[H]
     \centering
@@ -423,10 +427,14 @@ int main(int argc, char *argv[]) {
     \begin{figure}[H]
     \centering
         \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_mod2_32_final.png}
-        \caption{Operación final $mod \ 2^{32} (\sigma_{1}(W_{14}), W_9, \sigma_{0}(W_{1}), W_0)$.}
+        \caption{Operación final $mod \ 2^{32} (\sigma_{1}(W_{14}), W_{9}, \sigma_{0}(W_{1}), W_{0})$.}
     \end{figure}
     
-    Estas normas también aplican a las reglas criptográficas de los bloques en el protocolo Bitcoin, solo que hay que tener en cuenta que la cadena de entrada $M$ en cada bloque tiene una longitud superior a 512 bits, lo que implica utilizar la función \textit{hash} SHA-256 tres veces, una por cada ronda, y el valor de la longitud de $M$ solo se aplicará en el esquema de relleno de la segunda y tercera ronda. En la primera ronda (\textit{Ronda \texttt{\#}0}) se rellenan los primeros 16 segmentos de la variable $W_t$ con todos los bytes en hexadecimal que quepan, es decir, los primeros 512 bits de $M$, rellenando también los segmentos $W_{14}$ y $W_{15}$. Los 128 bits restantes de la cadena de entrada $M$ que no caben en esta primera ronda se reservan para los primeros 4 registros de $W_t$ de la segunda ronda. Tras la segunda ronda (\textit{Ronda \texttt{\#}1}) se obtiene un \textit{digest} de 256 bits que se utiliza para rellenar los primeros 8 segmentos de $W_t$ en la tercera y última ronda (\textit{Ronda \texttt{\#}2}). La siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
+    De este modo se obtiene el valor que se almacenará en el segmento $W_{16}$ del vector $W_t$. Será necesario repetir el mismo proceso por cada uno de los segmentos hasta llegar a $W_{63}$.
+    
+    \vspace{3mm}
+    
+    Todos los cálculos anteriores también aplican a las reglas criptográficas de los bloques en el protocolo Bitcoin, solo que hay que tener en cuenta que la cadena de entrada $M$ en cada bloque tiene una longitud superior a 512 bits, lo que implica utilizar la función \textit{hash} SHA-256 tres veces, una por cada ronda, y el valor de la longitud de $M$ solo se aplicará en el esquema de relleno de la segunda y tercera ronda. En la primera ronda (\textit{Ronda \texttt{\#}0}) se rellenan los primeros 16 segmentos de la variable $W_t$ con todos los bytes en hexadecimal que quepan, es decir, los primeros 512 bits de $M$, rellenando también los segmentos $W_{14}$ y $W_{15}$. Los 128 bits restantes de la cadena de entrada $M$ que no caben en esta primera ronda se reservan para los primeros 4 registros de $W_t$ de la segunda ronda. Tras la segunda ronda (\textit{Ronda \texttt{\#}1}) se obtiene un \textit{digest} de 256 bits que se utiliza para rellenar los primeros 8 segmentos de $W_t$ en la tercera y última ronda (\textit{Ronda \texttt{\#}2}). La siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
     \begin{figure}[H]
     \centering
         \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_x3}
@@ -436,14 +444,16 @@ int main(int argc, char *argv[]) {
     En los siguientes puntos se detalla el esquema de relleno al completo en cada una de las rondas.
     
     \subsection{Primera ronda SHA-256: Ronda 0}
-    La función \textit{hash} SHA-256 realiza 64 ciclos criptográficos en los que procesará una serie de cálculos en los que tiene en cuenta por un lado las 8 palabras hexadecimales de 32 bits asignadas como valor a las variables $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$, y por otro lado la variable $W_t$, que es un vector de 64 elementos ordenados por intervalos.
+    La función \textit{hash} SHA-256 realiza 64 ciclos criptográficos en los que procesará una serie de cálculos en los que tiene en cuenta por un lado las 8 palabras hexadecimales de 32 bits asignadas como valor a las variables $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$, y por otro lado la variable $W_t$, que es un vector de 64 elementos ordenados por intervalos. En la primera ronda criptográfica se han iniciar los
     
-    \noindent\begin{minipage}{0.3\textwidth}
+    \vspace{3mm}
+    
+    \noindent\begin{minipage}{0.23\textwidth}
     \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
     \end{minipage}
     \hfill
-    \begin{minipage}{0.6\textwidth}
-    En la primera ronda criptográfica se han iniciar los valores de las variables $A_{0}$, $B_{0}$, $C_{0}$, $D_{0}$, $E_{0}$, $F_{0}$, $G_{0}$ y $H_{0}$ con los valores estándar de la función \textit{hash} SHA-256 en su primera iteración, es decir, los 32 primeros bits en hexadecimal o base 16 de la parte fraccionaria de las raíces cuadradas de los primeros 8 números primos.
+    \begin{minipage}{0.67\textwidth}
+     valores de las variables $A_{0}$, $B_{0}$, $C_{0}$, $D_{0}$, $E_{0}$, $F_{0}$, $G_{0}$ y $H_{0}$ con los valores estándar de la función \textit{hash} SHA-256 en su primera iteración, es decir, los 32 primeros bits en hexadecimal o base 16 de la parte fraccionaria de las raíces cuadradas de los primeros 8 números primos.
     
     \begin{figure}[H]
     \centering
@@ -521,27 +531,29 @@ int main(int argc, char *argv[]) {
     \end{figure}
     
     En cuanto a los primeros 16 registros de la variable $W_t$ en esta segunda ronda se se utilizarán primero los bits del mensaje $M$ original de 640 bits que no cabían en la ronda anterior.
+    
+    \noindent\begin{minipage}{0.23\textwidth}
+    \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_1}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.67\textwidth}
     \begin{figure}[H]
     \centering
-        $\texttt{dc141787+358b0553+535f0119+48750833}$
+        $\texttt{dc141787} + \texttt{358b0553} + \texttt{535f0119} + \texttt{48750833}$
     \end{figure}
-        
     A continuación hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
         \begin{figure}[H]
         \centering
             $10000000_{2} = \texttt{80}_{16}$
         \end{figure}
-    
     Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
         \begin{figure}[H]
         \centering
             $\texttt{486f6c61} + \texttt{206d756e} + \texttt{646f} + \texttt{80}$
         \end{figure}
-     Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$.
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_1}
-    \end{figure}
+    Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$.
+    \end{minipage}
+    
     Para terminar de completar $W_{t}$ solo queda rellenar los últimos dos bloques de 32 bits $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 bits de longitud, en este caso es $280$.
     
     \begin{figure}[H]
