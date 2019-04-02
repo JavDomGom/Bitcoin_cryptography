@@ -360,7 +360,7 @@ int main(int argc, char *argv[]) {
     \end{figure}
     Este dato se ha de reservar para el siguiente punto, ya que será necesario para completar los registros $W_{14}$ y $W_{15}$ de la variable $W_t$ solo en la segunda y tercera ejecución de la función SHA-256.
     
-\section{Los 16 registros de $W_t$}
+\section{La variable $W_t$}
     Tal y como se describe en el punto 3 del documento "\textit{Criptografíıa aplicada: Función SHA-256}"\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/SHA-256/Cryptography\_SHA-256\_es.pdf}, la variable $W_{t}$ es un vector de 64 elementos que contiene palabras hexadecimales de 32 bits. Tiene un tamaño o longitud de 2048 bits (256 bytes) y se obtiene mediante la siguiente función recursiva definida por intervalos.
         \begin{figure}[H]
         \centering
@@ -371,20 +371,20 @@ int main(int argc, char *argv[]) {
             \end{array}
             \right .$
         \end{figure}
-    En la anterior función recursiva definida por intervalos, el primer intervalo es el que abarca los 16 primeros registros, o sea desde $W_{0}$ hasta $W_{15}$. El segundo intervalo es el esquema de los 48 registros restantes, es decir, desde $W_{16}$ hasta $W_{65}$.
+    En la anterior función recursiva definida por intervalos, el primer intervalo es el que abarca los 16 primeros registros, o sea desde $W_{0}$ hasta $W_{15}$. El segundo intervalo es el esquema de los 48 registros restantes, es decir, desde $W_{16}$ hasta $W_{63}$.
         \begin{figure}[H]
         \centering
             \includegraphics[scale=0.5]{img/SHA-256-Wt.png}
             \caption{Representación gráfica de $W_{t}$}
         \end{figure}
     Las funciones  $\sigma_{0}$ y $\sigma_{1}$ realizan las siguientes operaciones lógicas de compresión con cada uno de los bits de la palabra almacenada en el segmento de $W_t$ que procesan.
-        \begin{figure}[H]
-        \centering
-            $\begin{array}{l}
-                \sigma_{0}(x) = ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x) \\
-                \sigma_{1}(x) = ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)
-            \end{array}$
-        \end{figure}
+    \begin{figure}[H]
+    \centering
+        $\begin{array}{l}
+            \sigma_{0}(x) = ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x) \\
+            \sigma_{1}(x) = ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)
+        \end{array}$
+    \end{figure}
     
     Para hallar el valor de cualquiera de los segmentos que van desde $W_{16}$ hasta $W_{63}$ se han de realizar las siguientes operaciones, donde $i$ tiene por valor el valor de $t$ en el segmento que se quiere calcular de $W_t$. Por ejemplo, para $W_{16}$:
     
@@ -414,7 +414,7 @@ int main(int argc, char *argv[]) {
         \caption{Operación $ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)$ con cada bit.}
     \end{figure}
     
-    Tras el cálculo de $\sigma_{1}(W_{14})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{b0d6a141}$. Se ha de reservar este valor para calcular el resultado final. También se muestra la la representación gráfica la operación lógica de compresión $\sigma_{0}$, que aplica sobre el valor del segmento $W_{1}$.
+    Tras el cálculo de $\sigma_{1}(W_{14})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{0xb0d6a141}$. Se ha de reservar este valor para calcular el resultado final. También se muestra la la representación gráfica la operación lógica de compresión $\sigma_{0}$, que aplica sobre el valor del segmento $W_{1}$.
     
     \begin{figure}[H]
     \centering
