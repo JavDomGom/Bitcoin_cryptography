@@ -576,11 +576,26 @@ int main(int argc, char *argv[]) {
     \centering
         $\scriptsize{\texttt{7c122b86287a3ef7eac247e0ad637091ccfecbf85f6213030d9c1f895515d9e6}}$
     \end{figure}
-    Se reserva este dato para realizar la segunda ronda SHA-256 en el siguiente punto.
+    Se reserva este dato para realizar la tercera ronda SHA-256 en el siguiente punto. En este
     
     \subsection{Tercera ronda SHA-256: Ronda 2}
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_2}
-    \end{figure}
+    \noindent\begin{minipage}{0.23\textwidth}
+    \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_2}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.67\textwidth}
+    En esta tercera ronda criptográfica (\textit{Ronda \texttt{\#}2}) se ha de utilizar como mensaje de entrada $M$ el \textit{hash} obtenido en la ronda anterior (\textit{Ronda \texttt{\#}1}). Al igual que en la ronda anterior hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
+        \begin{figure}[H]
+        \centering
+            $10000000_{2} = \texttt{80}_{16}$
+        \end{figure}
+    Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
+        \begin{figure}[H]
+        \centering
+            $\texttt{7c122b86} + \texttt{287a3ef7} + \texttt{eac247e0} +$ \\
+            $\texttt{ad637091} +\texttt{ccfecbf8} + \texttt{5f621303} +$ \\
+            $\texttt{0d9c1f89} + \texttt{5515d9e6} + \texttt{80}$
+        \end{figure}
+    Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$.
+    \end{minipage}
 \end{document}
