@@ -478,29 +478,15 @@ int main(int argc, char *argv[]) {
     
     \begin{figure}[H]
     \centering
-        $\begin{array}{lll}
-            A_0 & mod\ 2^{32} & A_{63} \\
-            B_0 & mod\ 2^{32} & B_{63} \\
-            C_0 & mod\ 2^{32} & C_{63} \\
-            D_0 & mod\ 2^{32} & D_{63} \\
-            E_0 & mod\ 2^{32} & E_{63} \\
-            F_0 & mod\ 2^{32} & F_{63} \\
-            G_0 & mod\ 2^{32} & G_{63} \\
-            H_0 & mod\ 2^{32} & H_{63}
-        \end{array}$
-    \end{figure}
-    
-    \begin{figure}[H]
-    \centering
         $\begin{array}{lllll}
-            \texttt{0x6a09e667} & mod\ 2^{32} & \texttt{0x72605526} & = & \texttt{0xdc6a3b8d} \\
-            \texttt{0xbb67ae85} & mod\ 2^{32} & \texttt{0x51019395} & = & \texttt{0x0c69421a} \\
-            \texttt{0x3c6ef372} & mod\ 2^{32} & \texttt{0x8eab60c2} & = & \texttt{0xcb1a5434} \\
-            \texttt{0xa54ff53a} & mod\ 2^{32} & \texttt{0x3fe7029b} & = & \texttt{0xe536f7d5} \\
-            \texttt{0x510e527f} & mod\ 2^{32} & \texttt{0x72b36765} & = & \texttt{0xc3c1b9e4} \\
-            \texttt{0x9b05688c} & mod\ 2^{32} & \texttt{0xb1b63303} & = & \texttt{0x4cbb9b8f} \\
-            \texttt{0x1f83d9ab} & mod\ 2^{32} & \texttt{0x766c3d83} & = & \texttt{0x95f0172e} \\
-            \texttt{0x5be0cd19} & mod\ 2^{32} & \texttt{0xa06805c6} & = & \texttt{0xfc48d2df}
+            \texttt{0x6a09e667}\ (A_{0}) & mod\ 2^{32} & \texttt{0x72605526}\ (A_{63}) & = & \texttt{0xdc6a3b8d} \\
+            \texttt{0xbb67ae85}\ (B_{0}) & mod\ 2^{32} & \texttt{0x51019395}\ (B_{63}) & = & \texttt{0x0c69421a} \\
+            \texttt{0x3c6ef372}\ (C_{0}) & mod\ 2^{32} & \texttt{0x8eab60c2}\ (C_{63}) & = & \texttt{0xcb1a5434} \\
+            \texttt{0xa54ff53a}\ (D_{0}) & mod\ 2^{32} & \texttt{0x3fe7029b}\ (D_{63}) & = & \texttt{0xe536f7d5} \\
+            \texttt{0x510e527f}\ (E_{0}) & mod\ 2^{32} & \texttt{0x72b36765}\ (E_{63}) & = & \texttt{0xc3c1b9e4} \\
+            \texttt{0x9b05688c}\ (F_{0}) & mod\ 2^{32} & \texttt{0xb1b63303}\ (F_{63}) & = & \texttt{0x4cbb9b8f} \\
+            \texttt{0x1f83d9ab}\ (G_{0}) & mod\ 2^{32} & \texttt{0x766c3d83}\ (G_{63}) & = & \texttt{0x95f0172e} \\
+            \texttt{0x5be0cd19}\ (H_{0}) & mod\ 2^{32} & \texttt{0xa06805c6}\ (H_{63}) & = & \texttt{0xfc48d2df}
         \end{array}$
     \end{figure}
     
@@ -551,10 +537,10 @@ int main(int argc, char *argv[]) {
         \centering
             $\texttt{486f6c61} + \texttt{206d756e} + \texttt{646f} + \texttt{80}$
         \end{figure}
-    Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$.
+    Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Para terminar de completar los
     \end{minipage}
     
-    Para terminar de completar $W_{t}$ solo queda rellenar los últimos dos bloques de 32 bits $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 bits de longitud, en este caso es $280$.
+    \noindent primeros 16 segmentos de $W_{t}$ solo queda rellenar los últimos dos bloques de 32 bits $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 bits de longitud, en este caso es $280$. Los valores que irán en los segmentos desde $W_{16}$ hasta $W_{63}$ se obtienen siguiendo las pautas explicadas en el punto 6 de este documento. Al igual que en la primera ronda, cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
     
     \begin{figure}[H]
     \centering
@@ -590,12 +576,45 @@ int main(int argc, char *argv[]) {
             $10000000_{2} = \texttt{80}_{16}$
         \end{figure}
     Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
-        \begin{figure}[H]
-        \centering
-            $\texttt{7c122b86} + \texttt{287a3ef7} + \texttt{eac247e0} +$ \\
-            $\texttt{ad637091} +\texttt{ccfecbf8} + \texttt{5f621303} +$ \\
-            $\texttt{0d9c1f89} + \texttt{5515d9e6} + \texttt{80}$
-        \end{figure}
-    Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$.
+    \begin{figure}[H]
+    \centering
+        $\begin{array}{l}
+            \texttt{7c122b86 + 287a3ef7 + eac247e0 +} \\
+            \texttt{ad637091 + ccfecbf8 + 5f621303 +} \\
+            \texttt{0d9c1f89 + 5515d9e6 + 80 }
+        \end{array}$
+    \end{figure}
+    Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Cuando se hayan realizado las
     \end{minipage}
+    
+    \vspace{1.3mm}
+    
+    \noindent 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
+    
+    \begin{figure}[H]
+    \centering
+        $\begin{array}{lllll}
+            \texttt{0x6a09e667}\ (A_{0}) & mod\ 2^{32} & \texttt{0xe620b22b}\ (A_{63}) & = & \texttt{0x502a9892} \\
+            \texttt{0xbb67ae85}\ (B_{0}) & mod\ 2^{32} & \texttt{0x87564c0c}\ (B_{63}) & = & \texttt{0x42bdfa91} \\
+            \texttt{0x3c6ef372}\ (C_{0}) & mod\ 2^{32} & \texttt{0xf1369725}\ (C_{63}) & = & \texttt{0x2da58a97} \\
+            \texttt{0xa54ff53a}\ (D_{0}) & mod\ 2^{32} & \texttt{0x82e6d493}\ (D_{63}) & = & \texttt{0x2836c9cd} \\
+            \texttt{0x510e527f}\ (E_{0}) & mod\ 2^{32} & \texttt{0xadcef783}\ (E_{63}) & = & \texttt{0xfedd4a02} \\
+            \texttt{0x9b05688c}\ (F_{0}) & mod\ 2^{32} & \texttt{0xdd9eff54}\ (F_{63}) & = & \texttt{0x78a467e0} \\
+            \texttt{0x1f83d9ab}\ (G_{0}) & mod\ 2^{32} & \texttt{0xe07c2655}\ (G_{63}) & = & \texttt{0x00000000} \\
+            \texttt{0x5be0cd19}\ (H_{0}) & mod\ 2^{32} & \texttt{0xa41f32e7}\ (H_{63}) & = & \texttt{0x00000000}
+        \end{array}$
+    \end{figure}
+    
+    Finalmente se concatenan los valores de los 8 resultados en esta ronda 0 obteniendo el siguiente digest resultante:
+    
+    \begin{figure}[H]
+    \centering
+        $\scriptsize{\texttt{502a989242bdfa912da58a972836c9cdfedd4a0278a467e00000000000000000}}$
+    \end{figure}
+    Para terminar, el último paso para obtener el \textit{hash} definitivo de este bloque es convertir el \textit{digest} resultante a formato \textit{Little-Endian}, tal y como se muestra a continuación.
+    \begin{figure}[H]
+    \centering
+        $\scriptsize{\texttt{0000000000000000e067a478024addfecdc93628978aa52d91fabd4292982a50}}$
+    \end{figure}
+    Se puede comprobar que se cumplen los requisitos del protocolo Bitcoin para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar verificar con los de la cadena de bloques de Bitcoin desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
 \end{document}
