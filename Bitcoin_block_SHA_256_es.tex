@@ -25,9 +25,10 @@
 \tableofcontents{}
 
 \section{Introducción}
-    Este documento describe en detalle cada una de las partes de las que se compone un bloque en la cadena de bloques de Bitcoin. También describe el tipo y la distribución de los datos en el bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques.
+    El presente documento describe en detalle cada una de las partes de las que se compone un bloque de la cadena de bloques de Bitcoin. También describe el tipo y la distribución de los datos en el bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques. Todos los datos del bloque utilizados en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. No existe ninguna razón especial en la elección de este bloque, es uno al azar. El lector puede consultar los datos de cualquier otro bloque y realizar los mismos cálculos en todos los casos, obviamente obteniendo resultados diferentes.
     
-    Los datos del bloque que se utilizarán en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}.
+    \subsection{A quién va dirigido}
+    El propósito de este documento es facilitar al lector la información al más bajo nivel computacional sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el protocolo Bitcoin. Para ello será necesario tener unos conocimientos mínimos sobre álgebra de Boole, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan operaciones lógicas, módulo, rotativas y de desplazamiento.
 
 \section{Estructura de datos de un bloque}
     
