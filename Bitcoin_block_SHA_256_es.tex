@@ -28,13 +28,13 @@
     El presente documento describe en detalle cada una de las partes de las que se compone un bloque de la cadena de bloques de Bitcoin. También describe el tipo y la distribución de los datos en el bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques. Todos los datos del bloque utilizados en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. No existe ninguna razón especial en la elección de este bloque, es uno al azar. El lector puede consultar los datos de cualquier otro bloque y realizar los mismos cálculos en todos los casos, obviamente obteniendo resultados diferentes.
     
     \subsection{A quién va dirigido}
-    El propósito de este documento es facilitar al lector la información al más bajo nivel computacional sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el protocolo Bitcoin. Para ello será necesario tener unos conocimientos mínimos sobre álgebra de Boole, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan operaciones lógicas, módulo, rotativas y de desplazamiento.
+    El documento va dirigido a lectores familiarizados con la criptología en cualquiera de sus dos ramas: la criptografía y el criptoanálisis. También va dirigido a estudiantes de ciencias de la computación o matemáticas. El texto trata de facilitar al lector la información a más bajo nivel computacional sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el criptosistema planteado por el protocolo Bitcoin. Para ello será necesario tener unos conocimientos mínimos sobre álgebra de Boole, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan algunas operaciones lógicas, módulo, rotativas y de desplazamiento de bits.
 
 \section{Estructura de datos de un bloque}
     
     \vspace{3mm}
     
-    Cada bloque de la cadena de bloques de Bitcoin se compone de una serie de datos ordenados meticulosamente y con una lógica definida que se explicará en los siguientes puntos. Cada uno de estos datos tiene sus propios atributos, como puede ser el tipo de dato, el nombre, el tamaño que ocupa en memoria y el formato en el que este se representará. En la siguiente tabla se categorizan los más significativos.
+    Cada bloque de la cadena de bloques de Bitcoin se compone de una serie de datos ordenados en una estructura bien definida y con una lógica definida que se explicará en los siguientes puntos. Cada uno de estos datos tiene sus propios atributos, como puede ser el tipo de dato, el nombre, el tamaño que ocupa en memoria y el formato en el que este se representará. En la siguiente tabla se categorizan los principales o más significativos.
     \begin{table}[H]
     \centering
     \begin{tabular}{| c | l | c | l |} 
@@ -89,11 +89,28 @@
         
         Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
     
-        \item \textbf{headerLenght}: En un dato numérico hexadecimal de 4 bytes y de valor variable que representa la longitud en bytes del bloque actual. Está codificado en formato \textit{Big-endian}
+        \item \textbf{headerLenght}: En un dato numérico hexadecimal de 4 bytes y de valor variable que representa la longitud en bytes del bloque actual. Está codificado en formato \textit{Big-endian}. Por ejemplo, un bloque con tamaño 152.509 KB tendrá el siguiente valor:
         
-        \item \textbf{versionNumber}: Este dato hexadecimal puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. Se codifica en formato \textit{Little-endian}.
+        \begin{figure}[H]
+        \centering
+            $152509_{10} = \texttt{0x000253BD}$
+        \end{figure}
         
-        \item \textbf{previousBlockHash}: Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}.
+        \item \textbf{versionNumber}: Este dato hexadecimal puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. Tiene un tamaño de 4 bytes y se codifica en formato \textit{Little-endian}, por ejemplo:
+        
+        \begin{figure}[H]
+        \centering
+            $\texttt{0x02000000}$
+        \end{figure}
+        
+        \item \textbf{previousBlockHash}: Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}. Este documento toma como referencia los datos correpondientes al bloque \texttt{\#}286819, así pues, el valor de este dato ha de ser el \textit{hash} resultante del bloque anterior, que en este caso es el bloque \texttt{\#}286818.
+        
+        \begin{figure}[H]
+        \centering
+        \scriptsize{
+            \texttt{000000000000000117c80378b8da0e33559b5997f2ad55e2f7d18ec1975b9717}
+        }
+        \end{figure}
         
         \item \textbf{merkleRoot}: Cada vez que una nueva transacción es aceptada el valor de esta variable se modifica. Se trata de un \textit{hash} hexadecimal de 32 bytes codificado en formato \textit{Big-endian}. Para obtener el \textit{hash} final, también llamado \textit{hash root} se han de concatenar los datos de las transacciones ubicados en los nodos hoja del árbol, en grupos de dos. De ese modo, por cada dos transacciones se obtiene un \textit{hash} nuevo que será incluido en un nuevo vector que repetirá la acción hasta llegar al \textit{hash root}.
         
