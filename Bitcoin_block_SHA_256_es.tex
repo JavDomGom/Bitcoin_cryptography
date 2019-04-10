@@ -25,16 +25,16 @@
 \tableofcontents{}
 
 \section{Introducción}
-    El presente documento describe en detalle cada una de las partes de las que se compone un bloque de la cadena de bloques de Bitcoin. También describe el tipo y la distribución de los datos en el bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques. Todos los datos del bloque utilizados en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. No existe ninguna razón especial en la elección de este bloque, es uno al azar. El lector puede consultar los datos de cualquier otro bloque y realizar los mismos cálculos en todos los casos, obviamente obteniendo resultados diferentes.
+    El presente documento describe en detalle cada una de las partes de las que se compone un bloque de la cadena de bloques de Bitcoin. También describe el tipo y la distribución de los datos en el bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques. Todos los datos del bloque utilizados en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. No existe ninguna razón especial en la elección de este bloque, es uno al azar. El lector puede consultar los datos de este o cualquier otro bloque en, bien en la cadena de bloques descargada en su computadora local o bien en un \textit{explorador de bloques online}\footnote{https://www.blockchain.com/en/btc/block-height/286819}, y realizar los mismos cálculos en todos los casos, obviamente obteniendo resultados diferentes.
     
     \subsection{A quién va dirigido}
-    El documento va dirigido a lectores familiarizados con la criptología en cualquiera de sus dos ramas: la criptografía y el criptoanálisis. También va dirigido a estudiantes de ciencias de la computación o matemáticas. El texto trata de facilitar al lector la información a más bajo nivel computacional sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el criptosistema planteado por el protocolo Bitcoin. Para ello será necesario tener unos conocimientos mínimos sobre álgebra de Boole, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan algunas operaciones lógicas, módulo, rotativas y de desplazamiento de bits.
+    El documento va dirigido a lectores familiarizados con la criptología en cualquiera de sus dos ramas: la criptografía y el criptoanálisis. También va dirigido a estudiantes de ciencias de la computación o matemáticas, en general a lectores que todavía no se han adentrado en el campo de del análisis forense criptográfico sobre la información que contiene un bloque de la cadena de bloques de Bitcoin. El texto trata de facilitar al lector la información a más bajo nivel computacional sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el criptosistema planteado por el protocolo Bitcoin, que en este caso es la función \textit{hash} SHA-256. Para ello será necesario tener de antemano unos conocimientos mínimos sobre \textit{álgebra de Boole}\footnote{https://en.wikipedia.org/wiki/Boolean\_algebra}, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan algunas operaciones lógicas, módulo, rotativas y de desplazamiento de bits.
 
 \section{Estructura de datos de un bloque}
     
     \vspace{3mm}
     
-    Cada bloque de la cadena de bloques de Bitcoin se compone de una serie de datos ordenados en una estructura bien definida y con una lógica definida que se explicará en los siguientes puntos. Cada uno de estos datos tiene sus propios atributos, como puede ser el tipo de dato, el nombre, el tamaño que ocupa en memoria y el formato en el que este se representará. En la siguiente tabla se categorizan los principales o más significativos.
+    Cuando se habla de un bloque de la cadena de bloques de Bitcoin en realidad se está haciendo referencia a una serie de datos ordenados en una estructura que cumple ciertos requisitos y con una lógica definida que se explicará en los siguientes puntos. Cada uno de estos datos de la estructura de datos tiene sus propios atributos, como puede ser el tipo de dato, también llamado tipo primitivo, el nombre, el tamaño que ocupa en memoria y el formato en el que este se representará finalmente. En la siguiente tabla se categorizan los principales los más significativos.
     \begin{table}[H]
     \centering
     \begin{tabular}{| c | l | c | l |} 
@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
         
         *Cuando se le asigna por valor un entero muy grande se codifica en formato \textit{Little-endian}.
     \end{enumerate}
-    
+    \subsection{Datos de la cabecera o header}
     \begin{figure}[H]
     \centering
         \includegraphics[scale=0.47]{img/Bitcoin_block_SHA_256_Block_Data}
