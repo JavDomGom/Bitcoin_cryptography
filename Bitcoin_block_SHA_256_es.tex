@@ -34,11 +34,12 @@
     
     \vspace{3mm}
     
-    Cuando se habla sobre un bloque de la cadena de bloques de Bitcoin en realidad se está hablando sobre una serie de datos ordenados en 5 bloques principales. Los 5 bloques son los siguientes:
+    Cuando se habla sobre un bloque de la cadena de bloques de Bitcoin en realidad se está haciendo referencia a una serie de datos ordenados en 5 bloques principales. Los 5 bloques son los siguientes:
     
     \begin{figure}[H]
     \centering
-        $\underbrace{\texttt{[magicID]}}_{4\ bytes}\underbrace{\texttt{[headerLenght]}}_{4\ bytes}\underbrace{\texttt{[Cabecera]}}_{80\ bytes}\underbrace{\texttt{[Número\ de\ tx]}}_{Variable}\underbrace{\texttt{[Tx\ data]}}_{Resto\ de\ bytes}$
+        \includegraphics[scale=0.57]{img/Bitcoin_SHA_256-Block_data}
+        \caption{Los 5 bloques de datos principales en cada bloque de la cadena.}
     \end{figure}
     
     Cada uno de estos datos de la estructura de datos tiene sus propios atributos, como puede ser el tipo de dato, también llamado tipo primitivo, el nombre, el tamaño que ocupa en memoria y el formato en el que este se representará finalmente. En la siguiente tabla se categorizan los principales los más significativos.
