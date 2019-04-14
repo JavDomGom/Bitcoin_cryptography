@@ -34,7 +34,7 @@
     
     \vspace{3mm}
     
-    Cuando se habla sobre un bloque de la cadena de bloques de Bitcoin en realidad se está haciendo referencia a una serie de datos ordenados en 5 bloques principales. Los 5 bloques son los siguientes:
+     En un bloque de la cadena de bloques de Bitcoin los datos se ordenan en 5 secciones principales. La primera sección se reserva para el \textbf{magicId}, la segunda para almacenar un dato numérico de 4 bytes que representará el tamaño final de el bloque. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los bytes de los bloques se representan todos concatenados uno a continuación de otro. El tercer segmento tiene un espacio de memoria reservado de 80 bytes y es para almacenar los daros de la cabecera o \textit{header}. El cuarto segmento almacenará el número de transacciones que contiene el bloque, será un número de tipo entero y el tamaño puede variar dependiendo del número de transacciones. Por último, el quinto segmento se reserva para almacenar todos los datos de los que se componen cada una de las transacciones, su tamaño será todo el que quede disponible hasta llenar el bloque. A continuación una representación gráfica de los 5 segmentos de datos de los que se compone cada bloque.
     
     \begin{figure}[H]
     \centering
