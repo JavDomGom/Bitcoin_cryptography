@@ -34,7 +34,7 @@
     
     \vspace{3mm}
     
-     En un bloque de la cadena de bloques de Bitcoin los datos se ordenan en 5 secciones principales. La primera sección se reserva para el \textbf{magicId}, la segunda para almacenar un dato numérico de 4 bytes que representará el tamaño final de el bloque. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los bytes de los bloques se representan todos concatenados uno a continuación de otro. El tercer segmento tiene un espacio de memoria reservado de 80 bytes y es para almacenar los daros de la cabecera o \textit{header}. El cuarto segmento almacenará el número de transacciones que contiene el bloque, será un número de tipo entero y el tamaño puede variar dependiendo del número de transacciones. Por último, el quinto segmento se reserva para almacenar todos los datos de los que se componen cada una de las transacciones, su tamaño será todo el que quede disponible hasta llenar el bloque. A continuación una representación gráfica de los 5 segmentos de datos de los que se compone cada bloque.
+     En un bloque de la cadena de bloques de Bitcoin los datos se ordenan en 5 secciones principales. La primera sección se reserva para el \textbf{magicId}, la segunda sección para almacenar el dato \textbf{size} un dato numérico de 4 bytes que representará el tamaño final de el bloque. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los bytes que conforman los datos de los bloques se representan concatenados uno a continuación de otro. El tercer segmento tiene un espacio de memoria reservado de 80 bytes y es para almacenar los daros de la cabecera o \textbf{header}. El cuarto segmento almacenará el dato \textbf{transactionCount} que representa el número de transacciones que contiene el bloque, será un número de tipo entero y el tamaño puede variar dependiendo del número de transacciones en cada bloque. Por último, el quinto segmento se reserva para almacenar todos los datos de los que se componen cada una de las transacciones, esta sección llamada \textbf{transaction\ data} tendrá un tamaño variable que se corresponde con el tamaño disponible o restante hasta completar el bloque. A continuación una representación gráfica de los 5 segmentos de datos de los que se compone cada bloque.
     
     \begin{figure}[H]
     \centering
@@ -42,7 +42,7 @@
         \caption{Los 5 bloques de datos principales en cada bloque de la cadena.}
     \end{figure}
     
-    Cada uno de estos datos de la estructura de datos tiene sus propios atributos, como puede ser el tipo de dato, también llamado tipo primitivo, el nombre, el tamaño que ocupa en memoria y el formato en el que este se representará finalmente. En la siguiente tabla se categorizan los principales los más significativos.
+    El segmento \textbf{header} a su vez se compone de 6 datos que son \textbf{versionNumber}, \textbf{previousBlockHash}, \textbf{merkleRoot}, \textbf{timeStamp} \textbf{targetDifficulty} o \textbf{nonce}. Todos los datos del bloque tienen sus propios atributos, como puede ser el tipo de dato o tipo primitivo, un nombre, el tamaño que ocupa en memoria y el formato en el que este se representará finalmente. En la siguiente tabla se categorizan los datos más significativos y a continuación se explican en detalle.
     \begin{table}[H]
     \centering
     \begin{tabular}{| c | l | c | l |} 
@@ -51,7 +51,7 @@
         \hline
         uint32\_t & magicID & 4 bytes & Little-endian \\
         \hline
-        uint32\_t & headerLenght & 4 bytes & Big-endian \\
+        uint32\_t & size & 4 bytes & Little-endian \\
         \hline
         uint32\_t & versionNumber & 4 bytes & Little-endian \\
         \hline
@@ -97,11 +97,11 @@
         
         Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
     
-        \item \textbf{headerLenght}: En un dato numérico hexadecimal de 4 bytes y de valor variable que representa la longitud en bytes del bloque actual. Está codificado en formato \textit{Big-endian}. Por ejemplo, un bloque con tamaño 152.509 KB tendrá el siguiente valor:
+        \item \textbf{size}: En un dato numérico hexadecimal de 4 bytes y de valor variable que representa la longitud en bytes del bloque actual. Está codificado en formato \textit{Little-endian}. Por ejemplo, un bloque con tamaño 152.509 KB tendrá el siguiente valor:
         
         \begin{figure}[H]
         \centering
-            $152509_{10} = \texttt{0x000253BD}$
+            $152509_{10} = \texttt{0x000253BD} \Rightarrow \texttt{0xBD530200}$
         \end{figure}
         
         \item \textbf{versionNumber}: Este dato hexadecimal puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. Tiene un tamaño de 4 bytes y se codifica en formato \textit{Little-endian}, por ejemplo:
@@ -238,7 +238,7 @@ int main(int argc, char *argv[]) {
         \end{minted}
         
     
-        \item \textbf{targetDifficulty}: Se trata de un número entero de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números existentes entre $0$ y $2^{256}-1$. Su función es la de definir una variable más a tener en cuenta a la hora de obtener el hash adecuado de un bloque antes de ser minado. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de la variable \textit{targetDifficulty} en ese momento. Así pues, si el \textit{hash} obtenido como candidato a generar un bloque fuera un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea un \textit{hash} válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de la variable \textit{targetDifficulty}, se ha de incrementar el valor de la variable \textit{nonce} y probar otra vez a generar un \textit{hash} nuevo.
+        \item \textbf{targetDifficulty}: En algunos exploradores de bloques también se le llama \textit{bits}. Se trata de un número entero de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números existentes entre $0$ y $2^{256}-1$. Su función es la de definir una variable más a tener en cuenta a la hora de obtener el hash adecuado de un bloque antes de ser minado. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de la variable \textit{targetDifficulty} en ese momento. Así pues, si el \textit{hash} obtenido como candidato a generar un bloque fuera un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea un \textit{hash} válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de la variable \textit{targetDifficulty}, se ha de incrementar el valor de la variable \textit{nonce} y probar otra vez a generar un \textit{hash} nuevo.
         
         \begin{figure}[H]
         \centering
