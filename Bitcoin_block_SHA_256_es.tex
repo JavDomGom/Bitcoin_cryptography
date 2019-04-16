@@ -264,33 +264,6 @@ int main(int argc, char *argv[]) {
     \end{figure}
     
     \vspace{3mm}
-
-\section{Almacenamiento en ficheros}
-    Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
-    \begin{figure}[H]
-    \scriptsize{\texttt{$\sim\$$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
-    
-    \scriptsize{
-    \texttt{059621c6  \textbf{\textcolor{red}{f9 be b4 d9} \textcolor{green}{bd 53 02 00}  \textcolor{darkTurquoise}{02 00 00 00 17 97 5b 97}}  |.....S........[.|} \\
-    \texttt{059621d6  \textbf{\textcolor{darkTurquoise}{c1 8e d1 f7 e2 55 ad f2  97 59 9b 55 33 0e da b8}}  |.....U...Y.U3...|} \\
-    \texttt{059621e6  \textbf{\textcolor{darkTurquoise}{78 03 c8 17 01 00 00 00  00 00 00 00 8a 97 29 5a}}  |x.............)Z|} \\
-    \texttt{059621f6  \textbf{\textcolor{darkTurquoise}{27 47 b4 f1 a0 b3 94 8d  f3 99 03 44 c0 e1 9f a6}}  |'G.........D....|} \\
-    \texttt{05962206  \textbf{\textcolor{darkTurquoise}{b2 b9 2b 3a 19 c8 e6 ba  dc 14 17 87 35 8b 05 53}}  |..+:........5..S|} \\
-    \texttt{05962216  \textbf{\textcolor{darkTurquoise}{53 5f 01 19 48 75 08 33}  \textcolor{blue}{63} \textcolor{purple}{01 00 00 00 01 00 00}}  |S\_..Hu.3c.......|} \\
-    \texttt{05962226  \textbf{\textcolor{purple}{00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00}}  |................|} \\
-    \texttt{05962236  \textbf{\textcolor{purple}{00 00 00 00 00 00 00 00  00 00 00 00 00 00 ff ff}}  |................|} \\
-    \texttt{05962246  \textbf{\textcolor{purple}{ff ff 60 03 63 60 04 06  2f 50 32 53 48 2f 04 35}}  |..`.c`../P2SH/.5|} \\
-    \texttt{05962256  \textbf{\textcolor{purple}{8b 05 53 08 44 04 f2 53  00 00 17 e4 46 52 2c fa}}  |..S.D..S....FR,.|} \\
-    \texttt{05962266  \textbf{\textcolor{purple}{be 6d 6d 69 06 88 fb 88  6c 0d f0 c8 7c bc 7e a4}}  |.mmi....l...|.~.|} \\
-    \texttt{05962276  \textbf{\textcolor{purple}{f7 f1 b5 c0 05 0b d0 ac  37 51 cf c9 97 d9 d6 97}}  |........7Q......|} \\
-    \texttt{05962286  \textbf{\textcolor{purple}{13 28 de 04 00 00 00 00  00 00 00 48 61 70 70 79}}  |.(.........Happy|} \\
-    \texttt{05962296  \textbf{\textcolor{purple}{20 4e 59 21 20 59 6f 75  72 73 20 47 48 61 73 68}}  | NY! Yours GHash|} \\
-    \texttt{059622a6  \textbf{\textcolor{purple}{2e 49 4f 00 00 00 00 01  cb 81 31 95 00 00 00 00}}  |.IO.......1.....|} \\
-    \texttt{059622b6  \textbf{\textcolor{purple}{19 76 a9 14 80 ad 90 d4  03 58 1f a3 bf 46 08 6a}}  |.v.......X...F.j|} \\
-    \texttt{059622c6  \textbf{\textcolor{purple}{91 b2 d9 d4 12 5d b6 c1  88 ac 00 00 00 00 01 00}}  |.....]..........|} \\
-    \texttt{059622d6  \textbf{\textcolor{purple}{00 00 01 7d 67 7c de 17  3f 8c bf 43 31 27 a8 5e}}  |...\}g|..?..C1'.\textasciicircum|}
-    }
-    \end{figure}
     
 \section{Construcción de la cadena de entrada M}
     En este ejemplo se tratarán los datos reales del bloque $\#286819$ de la cadena de bloques de Bitcoin. Este bloque tiene el siguiente \textit{hash}.
@@ -379,270 +352,299 @@ int main(int argc, char *argv[]) {
             \right .
         \end{array}$
     \end{figure}
+    
+    De este modo se obtiene el mensaje de entrada $M$. Se ha de reservar este dato para utilizarlo más adelante en la función SHA-256 como \textit{input} en la primera ronda.
+    
+    \subsection{Longitud de la cadena de entrada $M$}
+        Una vez que se ha obtenido la cadena de entrada $M$ en el punto anterior es necesario calcular la longitud de la misma en formato hexadecimal o base 16, es decir, 640 bits que se representan con el valor 280 en hexadecimal.
+        \begin{figure}[H]
+        \centering
+            $|M| = 280\ (640\ bits\ del\ mensaje\ original\ en\ hexadecimal)$
+        \end{figure}
+        Este dato se ha de reservar para el siguiente punto, ya que será necesario para completar los registros $W_{14}$ y $W_{15}$ de la variable $W_t$ solo en la segunda y tercera ejecución de la función SHA-256.
+    
+    \subsection{La variable $W_t$}
+        Tal y como se describe en el punto 3 del documento "\textit{Criptografíıa aplicada: Función SHA-256}"\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/SHA-256/Cryptography\_SHA-256\_es.pdf}, la variable $W_{t}$ es un vector de 64 elementos que contiene palabras hexadecimales de 32 bits. Tiene un tamaño o longitud de 2048 bits (256 bytes) y se obtiene mediante la siguiente función recursiva definida por intervalos.
+            \begin{figure}[H]
+            \centering
+                $W_{t} = \left \{
+                \begin{array}{lcl}
+                    M_{i} & si & 0 \le i < 16 \\
+                    \sigma_{1}(W_{i-2})+W_{i-7}+\sigma_{0}(W_{i-15})+W_{i-16} & si & 16 \le i < 64
+                \end{array}
+                \right .$
+            \end{figure}
+        En la anterior función recursiva definida por intervalos, el primer intervalo es el que abarca los 16 primeros registros, o sea desde $W_{0}$ hasta $W_{15}$. El segundo intervalo es el esquema de los 48 registros restantes, es decir, desde $W_{16}$ hasta $W_{63}$.
+            \begin{figure}[H]
+            \centering
+                \includegraphics[scale=0.5]{img/SHA-256-Wt.png}
+                \caption{Representación gráfica de $W_{t}$}
+            \end{figure}
+        Las funciones  $\sigma_{0}$ y $\sigma_{1}$ realizan las siguientes operaciones lógicas de compresión con cada uno de los bits de la palabra almacenada en el segmento de $W_t$ que procesan.
+        \begin{figure}[H]
+        \centering
+            $\begin{array}{l}
+                \sigma_{0}(x) = ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x) \\
+                \sigma_{1}(x) = ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)
+            \end{array}$
+        \end{figure}
+        
+        Para hallar el valor de cualquiera de los segmentos que van desde $W_{16}$ hasta $W_{63}$ se han de realizar las siguientes operaciones, donde $i$ tiene por valor el valor de $t$ en el segmento que se quiere calcular de $W_t$. Por ejemplo, para $W_{16}$:
+        
+        \begin{figure}[H]
+        \centering
+            $\sigma_{1}(W_{i-2})+W_{i-7}+\sigma_{0}(W_{i-15})+W_{i-16}$ \\
+            $\Downarrow$ \\
+            $\sigma_{1}(W_{16-2})+W_{16-7}+\sigma_{0}(W_{16-15})+W_{16-16}$ \\
+            $\Downarrow$ \\
+            $\sigma_{1}(W_{14})+W_{9}+\sigma_{0}(W_{1})+W_{0}$
+        \end{figure}
+        
+        En este ejemplo los segmentos $W_{14}$, $W_{9}$, $W_{1}$ y $W_{0}$ de la primera ronda (\textit{Ronda \texttt{\#}0}) tienen asignados los siguientes valores:
+        \begin{figure}[H]
+        \centering
+            $\begin{array}{rl}
+                W_{14} = \texttt{0xb2b92b3a} & W_{9} = \texttt{0x8a97295a} \\
+                W_{1}\  = \texttt{0x17975b97} & W_{0} = \texttt{0x02000000}
+            \end{array}$
+        \end{figure}
+        
+        A continuación se muestra una representación gráfica la operación lógica de compresión $\sigma_{1}$, que aplica sobre el valor del segmento $W_{14}$.
+        
+        \begin{figure}[H]
+        \centering
+            \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_sigma1.png}
+            \caption{Operación $ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)$ con cada bit.}
+        \end{figure}
+        
+        Tras el cálculo de $\sigma_{1}(W_{14})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{0xb0d6a141}$. Se ha de reservar este valor para calcular el resultado final. También se muestra la la representación gráfica la operación lógica de compresión $\sigma_{0}$, que aplica sobre el valor del segmento $W_{1}$.
+        
+        \begin{figure}[H]
+        \centering
+            \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_sigma0.png}
+            \caption{Operación $ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x)$ con cada bit.}
+        \end{figure}
+        
+        Tras el cálculo de $\sigma_{0}(W_{1})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{fa380020}$. Una vez realizados los cálculos necesarios para obtener el valor de $\sigma_{1}(W_{14})$ y $\sigma_{0}(W_{1})$ finalmente se ha de realizar la siguiente operación final.
+        
+        \begin{figure}[H]
+        \centering
+            \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_mod2_32_final.png}
+            \caption{Operación final $mod \ 2^{32} (\sigma_{1}(W_{14}), W_{9}, \sigma_{0}(W_{1}), W_{0})$.}
+        \end{figure}
+        
+        De este modo se obtiene el valor que se almacenará en el segmento $W_{16}$ del vector $W_t$. Será necesario repetir el mismo proceso por cada uno de los segmentos hasta llegar a $W_{63}$.
+        
+        \vspace{3mm}
+        
+        Todos los cálculos anteriores también aplican a las reglas criptográficas de los bloques en el protocolo Bitcoin, solo que hay que tener en cuenta que la cadena de entrada $M$ en cada bloque tiene una longitud superior a 512 bits, lo que implica utilizar la función \textit{hash} SHA-256 tres veces, una por cada ronda, y el valor de la longitud de $M$ solo se aplicará en el esquema de relleno de la segunda y tercera ronda. En la primera ronda (\textit{Ronda \texttt{\#}0}) se rellenan los primeros 16 segmentos de la variable $W_t$ con todos los bytes en hexadecimal que quepan, es decir, los primeros 512 bits de $M$, rellenando también los segmentos $W_{14}$ y $W_{15}$. Los 128 bits restantes de la cadena de entrada $M$ que no caben en esta primera ronda se reservan para los primeros 4 registros de $W_t$ de la segunda ronda. Tras la segunda ronda (\textit{Ronda \texttt{\#}1}) se obtiene un \textit{digest} de 256 bits que se utiliza para rellenar los primeros 8 segmentos de $W_t$ en la tercera y última ronda (\textit{Ronda \texttt{\#}2}). La siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
+        \begin{figure}[H]
+        \centering
+            \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_x3}
+            \caption{Los primeros 16 registros de la variable $W_{t}$ en los tres casos en los que se ha de ejecutar la función SHA-256.}
+        \end{figure}
+        
+        En los siguientes puntos se detalla el esquema de relleno al completo en cada una de las rondas.
+        
+        \subsection{Primera ronda SHA-256: Ronda 0}
+        La función \textit{hash} SHA-256 realiza 64 ciclos criptográficos en los que procesará una serie de cálculos en los que tiene en cuenta por un lado las 8 palabras hexadecimales de 32 bits asignadas como valor a las variables $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$, y por otro lado la variable $W_t$, que es un vector de 64 elementos ordenados por intervalos. En la primera ronda criptográfica se han iniciar los
+        
+        \vspace{3mm}
+        
+        \noindent\begin{minipage}{0.23\textwidth}
+        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.67\textwidth}
+         valores de las variables $A_{0}$, $B_{0}$, $C_{0}$, $D_{0}$, $E_{0}$, $F_{0}$, $G_{0}$ y $H_{0}$ con los valores estándar de la función \textit{hash} SHA-256 en su primera iteración, es decir, los 32 primeros bits en hexadecimal o base 16 de la parte fraccionaria de las raíces cuadradas de los primeros 8 números primos.
+        
+        \begin{figure}[H]
+        \centering
+            $\begin{array}{rr}
+                A_{0} = \texttt{0x6a09e667} & B_{0} = \texttt{0xbb67ae85} \\
+                C_{0} = \texttt{0x3c6ef372} & D_{0} = \texttt{0xa54ff53a} \\
+                E_{0} = \texttt{0x510e527f} & F_{0} = \texttt{0x9b05688c} \\
+                G_{0} = \texttt{0x1f83d9ab} & H_{0} = \texttt{0x5be0cd19}
+            \end{array}$
+        \end{figure}
+        
+        En una función SHA-256, cuando el tamaño de la cadena de entrada $M$ es igual o mayor que 512 bits se han de rellenar los primeros 16 elementos del vector $W_t$ con los primeros 512 bits de la cadena principal de entrada $M$, incluidos los elementos $W_{14}$ y $W_{15}$, tal y como se muestra en la imagen. El resto de la cadena $M$ se ha de reservar para la segunda ejecución de la función SHA-256 que se explicará en el siguiente punto.
+        \end{minipage}
+        
+        \vspace{1mm}
+        
+        Teniendo la cadena $M$ de entrada, las 8 palabras iniciales, que irán cambiando en cada una de las 64 iteraciones, y los 64 elementos del vector $W_t$ se puede comenzar a realizar las operaciones de la función SHA-256. El objetivo en esta primera ronda es obtener el primer \textit{hash}, necesario en la segunda ronda.
+        
+        \vspace{3mm}
+        
+        Cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
+        
+        \begin{figure}[H]
+        \centering
+            $\begin{array}{lllll}
+                \texttt{0x6a09e667}\ (A_{0}) & mod\ 2^{32} & \texttt{0x72605526}\ (A_{63}) & = & \texttt{0xdc6a3b8d} \\
+                \texttt{0xbb67ae85}\ (B_{0}) & mod\ 2^{32} & \texttt{0x51019395}\ (B_{63}) & = & \texttt{0x0c69421a} \\
+                \texttt{0x3c6ef372}\ (C_{0}) & mod\ 2^{32} & \texttt{0x8eab60c2}\ (C_{63}) & = & \texttt{0xcb1a5434} \\
+                \texttt{0xa54ff53a}\ (D_{0}) & mod\ 2^{32} & \texttt{0x3fe7029b}\ (D_{63}) & = & \texttt{0xe536f7d5} \\
+                \texttt{0x510e527f}\ (E_{0}) & mod\ 2^{32} & \texttt{0x72b36765}\ (E_{63}) & = & \texttt{0xc3c1b9e4} \\
+                \texttt{0x9b05688c}\ (F_{0}) & mod\ 2^{32} & \texttt{0xb1b63303}\ (F_{63}) & = & \texttt{0x4cbb9b8f} \\
+                \texttt{0x1f83d9ab}\ (G_{0}) & mod\ 2^{32} & \texttt{0x766c3d83}\ (G_{63}) & = & \texttt{0x95f0172e} \\
+                \texttt{0x5be0cd19}\ (H_{0}) & mod\ 2^{32} & \texttt{0xa06805c6}\ (H_{63}) & = & \texttt{0xfc48d2df}
+            \end{array}$
+        \end{figure}
+        
+        Finalmente se concatenan los valores de los 8 resultados en esta ronda 0 obteniendo el siguiente digest resultante:
+        
+        \begin{figure}[H]
+        \centering
+            $\scriptsize{\texttt{dc6a3b8d0c69421acb1a5434e536f7d5c3c1b9e44cbb9b8f95f0172efc48d2df}}$
+        \end{figure}
+        Se reserva este dato para realizar la segunda ronda SHA-256 en el siguiente punto.
+        
+        \subsection{Segunda ronda SHA-256: Ronda 1}
+        En la segunda ronda se han volver a realizar los 64 ciclos criptográficos que realiza SHA-256 teniendo en cuenta que el valor de las 8 palabras iniciales $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ en la primera iteración tendrán por valor inicial cada uno de los segmentos de 32 bits correspondientes al \textit{hash} resultante de la primera ronda.
+        
+        \begin{figure}[H]
+        \centering
+            $\scriptsize{\overbrace{\texttt{dc6a3b8d}}^{A_{0}}\overbrace{\texttt{0c69421a}}^{B_{0}}\overbrace{\texttt{cb1a5434}}^{C_{0}}\overbrace{\texttt{e536f7d5}}^{D_{0}}\overbrace{\texttt{c3c1b9e4}}^{E_{0}}\overbrace{\texttt{4cbb9b8f}}^{F_{0}}\overbrace{\texttt{95f0172e}}^{G_{0}}\overbrace{\texttt{fc48d2df}}^{H_{0}}}$
+        \end{figure}
+        
+        \begin{figure}[H]
+        \centering
+            $\begin{array}{rr}
+                A_{0} = \texttt{0xdc6a3b8d} & B_{0} = \texttt{0xc3c1b9e4} \\
+                C_{0} = \texttt{0x0c69421a} & D_{0} = \texttt{0x4cbb9b8f} \\
+                E_{0} = \texttt{0xcb1a5434} & F_{0} = \texttt{0x95f0172e} \\
+                G_{0} = \texttt{0xe536f7d5} & H_{0} = \texttt{0xfc48d2df}
+            \end{array}$
+        \end{figure}
+        
+        En cuanto a los primeros 16 registros de la variable $W_t$ en esta segunda ronda se se utilizarán primero los bits del mensaje $M$ original de 640 bits que no cabían en la ronda anterior.
+        
+        \noindent\begin{minipage}{0.23\textwidth}
+        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_1}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.67\textwidth}
+        \begin{figure}[H]
+        \centering
+            $\texttt{dc141787} + \texttt{358b0553} + \texttt{535f0119} + \texttt{48750833}$
+        \end{figure}
+        A continuación hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
+            \begin{figure}[H]
+            \centering
+                $10000000_{2} = \texttt{80}_{16}$
+            \end{figure}
+        Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
+            \begin{figure}[H]
+            \centering
+                $\texttt{486f6c61} + \texttt{206d756e} + \texttt{646f} + \texttt{80}$
+            \end{figure}
+        Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Para terminar de completar los
+        \end{minipage}
+        
+        \noindent primeros 16 segmentos de $W_{t}$ solo queda rellenar los últimos dos bloques de 32 bits $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 bits de longitud, en este caso es $280$. Los valores que irán en los segmentos desde $W_{16}$ hasta $W_{63}$ se obtienen siguiendo las pautas explicadas en el punto 6 de este documento. Al igual que en la primera ronda, cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
+        
+        \begin{figure}[H]
+        \centering
+            $\begin{array}{lll}
+                \texttt{0xdc6a3b8d}\ (A_0)\ mod\ 2^{32}\ \texttt{0x9fa7eff9}\ (A_63) & = & \texttt{0x7c122b86} \\
+                \texttt{0x0c69421a}\ (B_0)\ mod\ 2^{32}\ \texttt{0x1c10fcdd}\ (B_63) & = & \texttt{0x287a3ef7} \\
+                \texttt{0xcb1a5434}\ (C_0)\ mod\ 2^{32}\ \texttt{0x1fa7f3ac}\ (C_63) & = & \texttt{0xeac247e0} \\
+                \texttt{0xe536f7d5}\ (D_0)\ mod\ 2^{32}\ \texttt{0xc82c78bc}\ (D_63) & = & \texttt{0xad637091} \\
+                \texttt{0xc3c1b9e4}\ (E_0)\ mod\ 2^{32}\ \texttt{0x093d1214}\ (E_63) & = & \texttt{0xccfecbf8} \\
+                \texttt{0x4cbb9b8f}\ (F_0)\ mod\ 2^{32}\ \texttt{0x12a67774}\ (F_63) & = & \texttt{0x5f621303} \\
+                \texttt{0x95f0172e}\ (G_0)\ mod\ 2^{32}\ \texttt{0x77ac085b}\ (G_63) & = & \texttt{0x0d9c1f89} \\
+                \texttt{0xfc48d2df}\ (H_0)\ mod\ 2^{32}\ \texttt{0x58cd0707}\ (H_63) & = & \texttt{0x5515d9e6}
+            \end{array}$
+        \end{figure}
+        
+        Finalmente se concatenan los valores de los 8 resultados en esta ronda 1 obteniendo el siguiente digest resultante:
+        
+        \begin{figure}[H]
+        \centering
+            $\scriptsize{\texttt{7c122b86287a3ef7eac247e0ad637091ccfecbf85f6213030d9c1f895515d9e6}}$
+        \end{figure}
+        Se reserva este dato para realizar la tercera ronda SHA-256 en el siguiente punto.
+        
+        \subsection{Tercera ronda SHA-256: Ronda 2}
+        \noindent\begin{minipage}{0.23\textwidth}
+        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_2}
+        \end{minipage}
+        \hfill
+        \begin{minipage}{0.67\textwidth}
+        En esta tercera ronda criptográfica (\textit{Ronda \texttt{\#}2}) se ha de utilizar como mensaje de entrada $M$ el \textit{hash} obtenido en la ronda anterior (\textit{Ronda \texttt{\#}1}). Al igual que en la ronda anterior hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
+            \begin{figure}[H]
+            \centering
+                $10000000_{2} = \texttt{80}_{16}$
+            \end{figure}
+        Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
+        \begin{figure}[H]
+        \centering
+            $\begin{array}{l}
+                \texttt{7c122b86 + 287a3ef7 + eac247e0 +} \\
+                \texttt{ad637091 + ccfecbf8 + 5f621303 +} \\
+                \texttt{0d9c1f89 + 5515d9e6 + 80 }
+            \end{array}$
+        \end{figure}
+        Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Cuando se hayan realizado las
+        \end{minipage}
+        
+        \vspace{1.3mm}
+        
+        \noindent 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
+        
+        \begin{figure}[H]
+        \centering
+            $\begin{array}{lllll}
+                \texttt{0x6a09e667}\ (A_{0}) & mod\ 2^{32} & \texttt{0xe620b22b}\ (A_{63}) & = & \texttt{0x502a9892} \\
+                \texttt{0xbb67ae85}\ (B_{0}) & mod\ 2^{32} & \texttt{0x87564c0c}\ (B_{63}) & = & \texttt{0x42bdfa91} \\
+                \texttt{0x3c6ef372}\ (C_{0}) & mod\ 2^{32} & \texttt{0xf1369725}\ (C_{63}) & = & \texttt{0x2da58a97} \\
+                \texttt{0xa54ff53a}\ (D_{0}) & mod\ 2^{32} & \texttt{0x82e6d493}\ (D_{63}) & = & \texttt{0x2836c9cd} \\
+                \texttt{0x510e527f}\ (E_{0}) & mod\ 2^{32} & \texttt{0xadcef783}\ (E_{63}) & = & \texttt{0xfedd4a02} \\
+                \texttt{0x9b05688c}\ (F_{0}) & mod\ 2^{32} & \texttt{0xdd9eff54}\ (F_{63}) & = & \texttt{0x78a467e0} \\
+                \texttt{0x1f83d9ab}\ (G_{0}) & mod\ 2^{32} & \texttt{0xe07c2655}\ (G_{63}) & = & \texttt{0x00000000} \\
+                \texttt{0x5be0cd19}\ (H_{0}) & mod\ 2^{32} & \texttt{0xa41f32e7}\ (H_{63}) & = & \texttt{0x00000000}
+            \end{array}$
+        \end{figure}
+        
+        Finalmente se concatenan los valores de los 8 resultados en esta ronda 0 obteniendo el siguiente digest resultante:
+        
+        \begin{figure}[H]
+        \centering
+            $\scriptsize{\texttt{502a989242bdfa912da58a972836c9cdfedd4a0278a467e00000000000000000}}$
+        \end{figure}
+        Para terminar, el último paso para obtener el \textit{hash} definitivo de este bloque es convertir el \textit{digest} resultante a formato \textit{Little-Endian}, tal y como se muestra a continuación.
+        \begin{figure}[H]
+        \centering
+            $\scriptsize{\texttt{0000000000000000e067a478024addfecdc93628978aa52d91fabd4292982a50}}$
+        \end{figure}
+        Se puede comprobar que se cumplen los requisitos del protocolo Bitcoin para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar verificar con los de la cadena de bloques de Bitcoin desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
 
-\section{Longitud de la cadena $M$ de entrada}
-    Una vez que se ha obtenido la cadena de entrada $M$ en el punto anterior es necesario calcular la longitud de la misma en formato hexadecimal o base 16, es decir, 640 bits que se representan con el valor 280 en hexadecimal.
+\section{Almacenamiento en ficheros}
+    Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
     \begin{figure}[H]
-    \centering
-        $|M| = 280\ (640\ bits\ del\ mensaje\ original\ en\ hexadecimal)$
+    \scriptsize{\texttt{$\sim\$$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
+    
+    \scriptsize{
+    \texttt{059621c6  \textbf{\textcolor{red}{f9 be b4 d9} \textcolor{green}{bd 53 02 00}  \textcolor{darkTurquoise}{02 00 00 00 17 97 5b 97}}  |.....S........[.|} \\
+    \texttt{059621d6  \textbf{\textcolor{darkTurquoise}{c1 8e d1 f7 e2 55 ad f2  97 59 9b 55 33 0e da b8}}  |.....U...Y.U3...|} \\
+    \texttt{059621e6  \textbf{\textcolor{darkTurquoise}{78 03 c8 17 01 00 00 00  00 00 00 00 8a 97 29 5a}}  |x.............)Z|} \\
+    \texttt{059621f6  \textbf{\textcolor{darkTurquoise}{27 47 b4 f1 a0 b3 94 8d  f3 99 03 44 c0 e1 9f a6}}  |'G.........D....|} \\
+    \texttt{05962206  \textbf{\textcolor{darkTurquoise}{b2 b9 2b 3a 19 c8 e6 ba  dc 14 17 87 35 8b 05 53}}  |..+:........5..S|} \\
+    \texttt{05962216  \textbf{\textcolor{darkTurquoise}{53 5f 01 19 48 75 08 33}  \textcolor{blue}{63} \textcolor{purple}{01 00 00 00 01 00 00}}  |S\_..Hu.3c.......|} \\
+    \texttt{05962226  \textbf{\textcolor{purple}{00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00}}  |................|} \\
+    \texttt{05962236  \textbf{\textcolor{purple}{00 00 00 00 00 00 00 00  00 00 00 00 00 00 ff ff}}  |................|} \\
+    \texttt{05962246  \textbf{\textcolor{purple}{ff ff 60 03 63 60 04 06  2f 50 32 53 48 2f 04 35}}  |..`.c`../P2SH/.5|} \\
+    \texttt{05962256  \textbf{\textcolor{purple}{8b 05 53 08 44 04 f2 53  00 00 17 e4 46 52 2c fa}}  |..S.D..S....FR,.|} \\
+    \texttt{05962266  \textbf{\textcolor{purple}{be 6d 6d 69 06 88 fb 88  6c 0d f0 c8 7c bc 7e a4}}  |.mmi....l...|.~.|} \\
+    \texttt{05962276  \textbf{\textcolor{purple}{f7 f1 b5 c0 05 0b d0 ac  37 51 cf c9 97 d9 d6 97}}  |........7Q......|} \\
+    \texttt{05962286  \textbf{\textcolor{purple}{13 28 de 04 00 00 00 00  00 00 00 48 61 70 70 79}}  |.(.........Happy|} \\
+    \texttt{05962296  \textbf{\textcolor{purple}{20 4e 59 21 20 59 6f 75  72 73 20 47 48 61 73 68}}  | NY! Yours GHash|} \\
+    \texttt{059622a6  \textbf{\textcolor{purple}{2e 49 4f 00 00 00 00 01  cb 81 31 95 00 00 00 00}}  |.IO.......1.....|} \\
+    \texttt{059622b6  \textbf{\textcolor{purple}{19 76 a9 14 80 ad 90 d4  03 58 1f a3 bf 46 08 6a}}  |.v.......X...F.j|} \\
+    \texttt{059622c6  \textbf{\textcolor{purple}{91 b2 d9 d4 12 5d b6 c1  88 ac 00 00 00 00 01 00}}  |.....]..........|} \\
+    \texttt{059622d6  \textbf{\textcolor{purple}{00 00 01 7d 67 7c de 17  3f 8c bf 43 31 27 a8 5e}}  |...\}g|..?..C1'.\textasciicircum|}
+    }
     \end{figure}
-    Este dato se ha de reservar para el siguiente punto, ya que será necesario para completar los registros $W_{14}$ y $W_{15}$ de la variable $W_t$ solo en la segunda y tercera ejecución de la función SHA-256.
-    
-\section{La variable $W_t$}
-    Tal y como se describe en el punto 3 del documento "\textit{Criptografíıa aplicada: Función SHA-256}"\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/SHA-256/Cryptography\_SHA-256\_es.pdf}, la variable $W_{t}$ es un vector de 64 elementos que contiene palabras hexadecimales de 32 bits. Tiene un tamaño o longitud de 2048 bits (256 bytes) y se obtiene mediante la siguiente función recursiva definida por intervalos.
-        \begin{figure}[H]
-        \centering
-            $W_{t} = \left \{
-            \begin{array}{lcl}
-                M_{i} & si & 0 \le i < 16 \\
-                \sigma_{1}(W_{i-2})+W_{i-7}+\sigma_{0}(W_{i-15})+W_{i-16} & si & 16 \le i < 64
-            \end{array}
-            \right .$
-        \end{figure}
-    En la anterior función recursiva definida por intervalos, el primer intervalo es el que abarca los 16 primeros registros, o sea desde $W_{0}$ hasta $W_{15}$. El segundo intervalo es el esquema de los 48 registros restantes, es decir, desde $W_{16}$ hasta $W_{63}$.
-        \begin{figure}[H]
-        \centering
-            \includegraphics[scale=0.5]{img/SHA-256-Wt.png}
-            \caption{Representación gráfica de $W_{t}$}
-        \end{figure}
-    Las funciones  $\sigma_{0}$ y $\sigma_{1}$ realizan las siguientes operaciones lógicas de compresión con cada uno de los bits de la palabra almacenada en el segmento de $W_t$ que procesan.
-    \begin{figure}[H]
-    \centering
-        $\begin{array}{l}
-            \sigma_{0}(x) = ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x) \\
-            \sigma_{1}(x) = ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)
-        \end{array}$
-    \end{figure}
-    
-    Para hallar el valor de cualquiera de los segmentos que van desde $W_{16}$ hasta $W_{63}$ se han de realizar las siguientes operaciones, donde $i$ tiene por valor el valor de $t$ en el segmento que se quiere calcular de $W_t$. Por ejemplo, para $W_{16}$:
-    
-    \begin{figure}[H]
-    \centering
-        $\sigma_{1}(W_{i-2})+W_{i-7}+\sigma_{0}(W_{i-15})+W_{i-16}$ \\
-        $\Downarrow$ \\
-        $\sigma_{1}(W_{16-2})+W_{16-7}+\sigma_{0}(W_{16-15})+W_{16-16}$ \\
-        $\Downarrow$ \\
-        $\sigma_{1}(W_{14})+W_{9}+\sigma_{0}(W_{1})+W_{0}$
-    \end{figure}
-    
-    En este ejemplo los segmentos $W_{14}$, $W_{9}$, $W_{1}$ y $W_{0}$ de la primera ronda (\textit{Ronda \texttt{\#}0}) tienen asignados los siguientes valores:
-    \begin{figure}[H]
-    \centering
-        $\begin{array}{rl}
-            W_{14} = \texttt{0xb2b92b3a} & W_{9} = \texttt{0x8a97295a} \\
-            W_{1}\  = \texttt{0x17975b97} & W_{0} = \texttt{0x02000000}
-        \end{array}$
-    \end{figure}
-    
-    A continuación se muestra una representación gráfica la operación lógica de compresión $\sigma_{1}$, que aplica sobre el valor del segmento $W_{14}$.
-    
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_sigma1.png}
-        \caption{Operación $ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)$ con cada bit.}
-    \end{figure}
-    
-    Tras el cálculo de $\sigma_{1}(W_{14})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{0xb0d6a141}$. Se ha de reservar este valor para calcular el resultado final. También se muestra la la representación gráfica la operación lógica de compresión $\sigma_{0}$, que aplica sobre el valor del segmento $W_{1}$.
-    
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_sigma0.png}
-        \caption{Operación $ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x)$ con cada bit.}
-    \end{figure}
-    
-    Tras el cálculo de $\sigma_{0}(W_{1})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{fa380020}$. Una vez realizados los cálculos necesarios para obtener el valor de $\sigma_{1}(W_{14})$ y $\sigma_{0}(W_{1})$ finalmente se ha de realizar la siguiente operación final.
-    
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_mod2_32_final.png}
-        \caption{Operación final $mod \ 2^{32} (\sigma_{1}(W_{14}), W_{9}, \sigma_{0}(W_{1}), W_{0})$.}
-    \end{figure}
-    
-    De este modo se obtiene el valor que se almacenará en el segmento $W_{16}$ del vector $W_t$. Será necesario repetir el mismo proceso por cada uno de los segmentos hasta llegar a $W_{63}$.
-    
-    \vspace{3mm}
-    
-    Todos los cálculos anteriores también aplican a las reglas criptográficas de los bloques en el protocolo Bitcoin, solo que hay que tener en cuenta que la cadena de entrada $M$ en cada bloque tiene una longitud superior a 512 bits, lo que implica utilizar la función \textit{hash} SHA-256 tres veces, una por cada ronda, y el valor de la longitud de $M$ solo se aplicará en el esquema de relleno de la segunda y tercera ronda. En la primera ronda (\textit{Ronda \texttt{\#}0}) se rellenan los primeros 16 segmentos de la variable $W_t$ con todos los bytes en hexadecimal que quepan, es decir, los primeros 512 bits de $M$, rellenando también los segmentos $W_{14}$ y $W_{15}$. Los 128 bits restantes de la cadena de entrada $M$ que no caben en esta primera ronda se reservan para los primeros 4 registros de $W_t$ de la segunda ronda. Tras la segunda ronda (\textit{Ronda \texttt{\#}1}) se obtiene un \textit{digest} de 256 bits que se utiliza para rellenar los primeros 8 segmentos de $W_t$ en la tercera y última ronda (\textit{Ronda \texttt{\#}2}). La siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
-    \begin{figure}[H]
-    \centering
-        \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_x3}
-        \caption{Los primeros 16 registros de la variable $W_{t}$ en los tres casos en los que se ha de ejecutar la función SHA-256.}
-    \end{figure}
-    
-    En los siguientes puntos se detalla el esquema de relleno al completo en cada una de las rondas.
-    
-    \subsection{Primera ronda SHA-256: Ronda 0}
-    La función \textit{hash} SHA-256 realiza 64 ciclos criptográficos en los que procesará una serie de cálculos en los que tiene en cuenta por un lado las 8 palabras hexadecimales de 32 bits asignadas como valor a las variables $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$, y por otro lado la variable $W_t$, que es un vector de 64 elementos ordenados por intervalos. En la primera ronda criptográfica se han iniciar los
-    
-    \vspace{3mm}
-    
-    \noindent\begin{minipage}{0.23\textwidth}
-    \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_0}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.67\textwidth}
-     valores de las variables $A_{0}$, $B_{0}$, $C_{0}$, $D_{0}$, $E_{0}$, $F_{0}$, $G_{0}$ y $H_{0}$ con los valores estándar de la función \textit{hash} SHA-256 en su primera iteración, es decir, los 32 primeros bits en hexadecimal o base 16 de la parte fraccionaria de las raíces cuadradas de los primeros 8 números primos.
-    
-    \begin{figure}[H]
-    \centering
-        $\begin{array}{rr}
-            A_{0} = \texttt{0x6a09e667} & B_{0} = \texttt{0xbb67ae85} \\
-            C_{0} = \texttt{0x3c6ef372} & D_{0} = \texttt{0xa54ff53a} \\
-            E_{0} = \texttt{0x510e527f} & F_{0} = \texttt{0x9b05688c} \\
-            G_{0} = \texttt{0x1f83d9ab} & H_{0} = \texttt{0x5be0cd19}
-        \end{array}$
-    \end{figure}
-    
-    En una función SHA-256, cuando el tamaño de la cadena de entrada $M$ es igual o mayor que 512 bits se han de rellenar los primeros 16 elementos del vector $W_t$ con los primeros 512 bits de la cadena principal de entrada $M$, incluidos los elementos $W_{14}$ y $W_{15}$, tal y como se muestra en la imagen. El resto de la cadena $M$ se ha de reservar para la segunda ejecución de la función SHA-256 que se explicará en el siguiente punto.
-    \end{minipage}
-    
-    \vspace{1mm}
-    
-    Teniendo la cadena $M$ de entrada, las 8 palabras iniciales, que irán cambiando en cada una de las 64 iteraciones, y los 64 elementos del vector $W_t$ se puede comenzar a realizar las operaciones de la función SHA-256. El objetivo en esta primera ronda es obtener el primer \textit{hash}, necesario en la segunda ronda.
-    
-    \vspace{3mm}
-    
-    Cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
-    
-    \begin{figure}[H]
-    \centering
-        $\begin{array}{lllll}
-            \texttt{0x6a09e667}\ (A_{0}) & mod\ 2^{32} & \texttt{0x72605526}\ (A_{63}) & = & \texttt{0xdc6a3b8d} \\
-            \texttt{0xbb67ae85}\ (B_{0}) & mod\ 2^{32} & \texttt{0x51019395}\ (B_{63}) & = & \texttt{0x0c69421a} \\
-            \texttt{0x3c6ef372}\ (C_{0}) & mod\ 2^{32} & \texttt{0x8eab60c2}\ (C_{63}) & = & \texttt{0xcb1a5434} \\
-            \texttt{0xa54ff53a}\ (D_{0}) & mod\ 2^{32} & \texttt{0x3fe7029b}\ (D_{63}) & = & \texttt{0xe536f7d5} \\
-            \texttt{0x510e527f}\ (E_{0}) & mod\ 2^{32} & \texttt{0x72b36765}\ (E_{63}) & = & \texttt{0xc3c1b9e4} \\
-            \texttt{0x9b05688c}\ (F_{0}) & mod\ 2^{32} & \texttt{0xb1b63303}\ (F_{63}) & = & \texttt{0x4cbb9b8f} \\
-            \texttt{0x1f83d9ab}\ (G_{0}) & mod\ 2^{32} & \texttt{0x766c3d83}\ (G_{63}) & = & \texttt{0x95f0172e} \\
-            \texttt{0x5be0cd19}\ (H_{0}) & mod\ 2^{32} & \texttt{0xa06805c6}\ (H_{63}) & = & \texttt{0xfc48d2df}
-        \end{array}$
-    \end{figure}
-    
-    Finalmente se concatenan los valores de los 8 resultados en esta ronda 0 obteniendo el siguiente digest resultante:
-    
-    \begin{figure}[H]
-    \centering
-        $\scriptsize{\texttt{dc6a3b8d0c69421acb1a5434e536f7d5c3c1b9e44cbb9b8f95f0172efc48d2df}}$
-    \end{figure}
-    Se reserva este dato para realizar la segunda ronda SHA-256 en el siguiente punto.
-    
-    \subsection{Segunda ronda SHA-256: Ronda 1}
-    En la segunda ronda se han volver a realizar los 64 ciclos criptográficos que realiza SHA-256 teniendo en cuenta que el valor de las 8 palabras iniciales $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ en la primera iteración tendrán por valor inicial cada uno de los segmentos de 32 bits correspondientes al \textit{hash} resultante de la primera ronda.
-    
-    \begin{figure}[H]
-    \centering
-        $\scriptsize{\overbrace{\texttt{dc6a3b8d}}^{A_{0}}\overbrace{\texttt{0c69421a}}^{B_{0}}\overbrace{\texttt{cb1a5434}}^{C_{0}}\overbrace{\texttt{e536f7d5}}^{D_{0}}\overbrace{\texttt{c3c1b9e4}}^{E_{0}}\overbrace{\texttt{4cbb9b8f}}^{F_{0}}\overbrace{\texttt{95f0172e}}^{G_{0}}\overbrace{\texttt{fc48d2df}}^{H_{0}}}$
-    \end{figure}
-    
-    \begin{figure}[H]
-    \centering
-        $\begin{array}{rr}
-            A_{0} = \texttt{0xdc6a3b8d} & B_{0} = \texttt{0xc3c1b9e4} \\
-            C_{0} = \texttt{0x0c69421a} & D_{0} = \texttt{0x4cbb9b8f} \\
-            E_{0} = \texttt{0xcb1a5434} & F_{0} = \texttt{0x95f0172e} \\
-            G_{0} = \texttt{0xe536f7d5} & H_{0} = \texttt{0xfc48d2df}
-        \end{array}$
-    \end{figure}
-    
-    En cuanto a los primeros 16 registros de la variable $W_t$ en esta segunda ronda se se utilizarán primero los bits del mensaje $M$ original de 640 bits que no cabían en la ronda anterior.
-    
-    \noindent\begin{minipage}{0.23\textwidth}
-    \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_1}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.67\textwidth}
-    \begin{figure}[H]
-    \centering
-        $\texttt{dc141787} + \texttt{358b0553} + \texttt{535f0119} + \texttt{48750833}$
-    \end{figure}
-    A continuación hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
-        \begin{figure}[H]
-        \centering
-            $10000000_{2} = \texttt{80}_{16}$
-        \end{figure}
-    Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
-        \begin{figure}[H]
-        \centering
-            $\texttt{486f6c61} + \texttt{206d756e} + \texttt{646f} + \texttt{80}$
-        \end{figure}
-    Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Para terminar de completar los
-    \end{minipage}
-    
-    \noindent primeros 16 segmentos de $W_{t}$ solo queda rellenar los últimos dos bloques de 32 bits $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 bits de longitud, en este caso es $280$. Los valores que irán en los segmentos desde $W_{16}$ hasta $W_{63}$ se obtienen siguiendo las pautas explicadas en el punto 6 de este documento. Al igual que en la primera ronda, cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
-    
-    \begin{figure}[H]
-    \centering
-        $\begin{array}{lll}
-            \texttt{0xdc6a3b8d}\ (A_0)\ mod\ 2^{32}\ \texttt{0x9fa7eff9}\ (A_63) & = & \texttt{0x7c122b86} \\
-            \texttt{0x0c69421a}\ (B_0)\ mod\ 2^{32}\ \texttt{0x1c10fcdd}\ (B_63) & = & \texttt{0x287a3ef7} \\
-            \texttt{0xcb1a5434}\ (C_0)\ mod\ 2^{32}\ \texttt{0x1fa7f3ac}\ (C_63) & = & \texttt{0xeac247e0} \\
-            \texttt{0xe536f7d5}\ (D_0)\ mod\ 2^{32}\ \texttt{0xc82c78bc}\ (D_63) & = & \texttt{0xad637091} \\
-            \texttt{0xc3c1b9e4}\ (E_0)\ mod\ 2^{32}\ \texttt{0x093d1214}\ (E_63) & = & \texttt{0xccfecbf8} \\
-            \texttt{0x4cbb9b8f}\ (F_0)\ mod\ 2^{32}\ \texttt{0x12a67774}\ (F_63) & = & \texttt{0x5f621303} \\
-            \texttt{0x95f0172e}\ (G_0)\ mod\ 2^{32}\ \texttt{0x77ac085b}\ (G_63) & = & \texttt{0x0d9c1f89} \\
-            \texttt{0xfc48d2df}\ (H_0)\ mod\ 2^{32}\ \texttt{0x58cd0707}\ (H_63) & = & \texttt{0x5515d9e6}
-        \end{array}$
-    \end{figure}
-    
-    Finalmente se concatenan los valores de los 8 resultados en esta ronda 1 obteniendo el siguiente digest resultante:
-    
-    \begin{figure}[H]
-    \centering
-        $\scriptsize{\texttt{7c122b86287a3ef7eac247e0ad637091ccfecbf85f6213030d9c1f895515d9e6}}$
-    \end{figure}
-    Se reserva este dato para realizar la tercera ronda SHA-256 en el siguiente punto. En este
-    
-    \subsection{Tercera ronda SHA-256: Ronda 2}
-    \noindent\begin{minipage}{0.23\textwidth}
-    \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_ronda_2}
-    \end{minipage}
-    \hfill
-    \begin{minipage}{0.67\textwidth}
-    En esta tercera ronda criptográfica (\textit{Ronda \texttt{\#}2}) se ha de utilizar como mensaje de entrada $M$ el \textit{hash} obtenido en la ronda anterior (\textit{Ronda \texttt{\#}1}). Al igual que en la ronda anterior hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
-        \begin{figure}[H]
-        \centering
-            $10000000_{2} = \texttt{80}_{16}$
-        \end{figure}
-    Independientemente de la longitud de cadena hexadecimal de la palabra de entrada, se añade $80$ por la derecha.
-    \begin{figure}[H]
-    \centering
-        $\begin{array}{l}
-            \texttt{7c122b86 + 287a3ef7 + eac247e0 +} \\
-            \texttt{ad637091 + ccfecbf8 + 5f621303 +} \\
-            \texttt{0d9c1f89 + 5515d9e6 + 80 }
-        \end{array}$
-    \end{figure}
-    Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Cuando se hayan realizado las
-    \end{minipage}
-    
-    \vspace{1.3mm}
-    
-    \noindent 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
-    
-    \begin{figure}[H]
-    \centering
-        $\begin{array}{lllll}
-            \texttt{0x6a09e667}\ (A_{0}) & mod\ 2^{32} & \texttt{0xe620b22b}\ (A_{63}) & = & \texttt{0x502a9892} \\
-            \texttt{0xbb67ae85}\ (B_{0}) & mod\ 2^{32} & \texttt{0x87564c0c}\ (B_{63}) & = & \texttt{0x42bdfa91} \\
-            \texttt{0x3c6ef372}\ (C_{0}) & mod\ 2^{32} & \texttt{0xf1369725}\ (C_{63}) & = & \texttt{0x2da58a97} \\
-            \texttt{0xa54ff53a}\ (D_{0}) & mod\ 2^{32} & \texttt{0x82e6d493}\ (D_{63}) & = & \texttt{0x2836c9cd} \\
-            \texttt{0x510e527f}\ (E_{0}) & mod\ 2^{32} & \texttt{0xadcef783}\ (E_{63}) & = & \texttt{0xfedd4a02} \\
-            \texttt{0x9b05688c}\ (F_{0}) & mod\ 2^{32} & \texttt{0xdd9eff54}\ (F_{63}) & = & \texttt{0x78a467e0} \\
-            \texttt{0x1f83d9ab}\ (G_{0}) & mod\ 2^{32} & \texttt{0xe07c2655}\ (G_{63}) & = & \texttt{0x00000000} \\
-            \texttt{0x5be0cd19}\ (H_{0}) & mod\ 2^{32} & \texttt{0xa41f32e7}\ (H_{63}) & = & \texttt{0x00000000}
-        \end{array}$
-    \end{figure}
-    
-    Finalmente se concatenan los valores de los 8 resultados en esta ronda 0 obteniendo el siguiente digest resultante:
-    
-    \begin{figure}[H]
-    \centering
-        $\scriptsize{\texttt{502a989242bdfa912da58a972836c9cdfedd4a0278a467e00000000000000000}}$
-    \end{figure}
-    Para terminar, el último paso para obtener el \textit{hash} definitivo de este bloque es convertir el \textit{digest} resultante a formato \textit{Little-Endian}, tal y como se muestra a continuación.
-    \begin{figure}[H]
-    \centering
-        $\scriptsize{\texttt{0000000000000000e067a478024addfecdc93628978aa52d91fabd4292982a50}}$
-    \end{figure}
-    Se puede comprobar que se cumplen los requisitos del protocolo Bitcoin para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar verificar con los de la cadena de bloques de Bitcoin desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
 \end{document}
