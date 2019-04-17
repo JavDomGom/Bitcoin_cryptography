@@ -25,16 +25,16 @@
 \tableofcontents{}
 
 \section{Introducción}
-    El presente documento describe en detalle cada una de las partes de las que se compone un bloque de la cadena de bloques de Bitcoin. También describe el tipo y la distribución de los datos en el bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256 que se emplean con el fin de generar el \textit{hash} adecuado que finalmente representará dicho bloque en la cadena de bloques. Todos los datos del bloque utilizados en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. No existe ninguna razón especial en la elección de este bloque, es uno al azar. El lector puede consultar los datos de este o cualquier otro bloque en, bien en la cadena de bloques descargada en su computadora local o bien en un \textit{explorador de bloques online}\footnote{https://www.blockchain.com/en/btc/block-height/286819}, y realizar los mismos cálculos en todos los casos, obviamente obteniendo resultados diferentes.
+    Este documento presenta en detalle cada una de las partes de las que se compone un bloque de datos en el criptosistema definido por el protocolo Bitcoin\footnote{https://bitcoin.org/bitcoin.pdf}. Se tratarán algunos aspectos importantes como los diferentes datos, tipos, formatos y la distribución de los mismos en la estructura del bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/SHA-256/Cryptography\_SHA-256\_es.pdf} que se emplean con el fin de generar un \textit{hash} resultante adecuado, es decir, un resultado que cumpla las características definidas en el protocolo Bitcoin. Finalmente este \textit{hash} representará dicho bloque en lo que se conoce como la cadena de bloques. Todos los datos del bloque utilizados en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. No existe ninguna razón especial en la elección de este bloque, es uno al azar. El lector puede consultar los datos de este o cualquier otro bloque, bien en la cadena de bloques descargada en su computadora local o bien en un \textit{explorador de bloques online}\footnote{https://www.blockchain.com/en/btc/block-height/286819}, y realizar los mismos cálculos en todos los casos, obviamente obteniendo resultados diferentes.
     
     \subsection{A quién va dirigido}
-    El documento va dirigido a lectores familiarizados con la criptología en cualquiera de sus dos ramas: la criptografía y el criptoanálisis. También va dirigido a estudiantes de ciencias de la computación o matemáticas, en general a lectores que todavía no se han adentrado en el campo de del análisis forense criptográfico sobre la información que contiene un bloque de la cadena de bloques de Bitcoin. El texto trata de facilitar al lector la información a más bajo nivel computacional sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el criptosistema planteado por el protocolo Bitcoin, que en este caso es la función \textit{hash} SHA-256. Para ello será necesario tener de antemano unos conocimientos mínimos sobre \textit{álgebra de Boole}\footnote{https://en.wikipedia.org/wiki/Boolean\_algebra}, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan algunas operaciones lógicas, módulo, rotativas y de desplazamiento de bits.
+    El documento va dirigido a principalmente a lectores familiarizados con la criptología en cualquiera de sus dos ramas: la criptografía y el criptoanálisis. También va dirigido a estudiantes de ciencias de la computación, matemáticas o física, en general a lectores que todavía no se han adentrado en el campo de del análisis forense criptográfico sobre la información que contiene un bloque de la cadena de bloques de Bitcoin, pero que quieren comprender su funcionamiento al más bajo nivel, a nivel de \textit{bits}. El texto trata de facilitar al lector la información sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el criptosistema planteado por el protocolo Bitcoin. Para ello será necesario tener de antemano unos conocimientos mínimos sobre \textit{álgebra de Boole}\footnote{https://en.wikipedia.org/wiki/Boolean\_algebra}, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan algunas operaciones lógicas, módulo, rotativas y de desplazamiento de bits.
 
 \section{Estructura de datos de un bloque}
     
     \vspace{3mm}
     
-     En un bloque de la cadena de bloques de Bitcoin los datos se ordenan en 5 secciones principales. La primera sección se reserva para el \textbf{magicId}, la segunda sección para almacenar el dato \textbf{size} un dato numérico de 4 bytes que representará el tamaño final de el bloque. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los bytes que conforman los datos de los bloques se representan concatenados uno a continuación de otro. El tercer segmento tiene un espacio de memoria reservado de 80 bytes y es para almacenar los daros de la cabecera o \textbf{header}. El cuarto segmento almacenará el dato \textbf{transactionCount} que representa el número de transacciones que contiene el bloque, será un número de tipo entero y el tamaño puede variar dependiendo del número de transacciones en cada bloque. Por último, el quinto segmento se reserva para almacenar todos los datos de los que se componen cada una de las transacciones, esta sección llamada \textbf{transaction\ data} tendrá un tamaño variable que se corresponde con el tamaño disponible o restante hasta completar el bloque. A continuación una representación gráfica de los 5 segmentos de datos de los que se compone cada bloque.
+     En un bloque de la cadena de bloques de Bitcoin los datos se ordenan en 5 secciones principales. La primera sección se reserva para un dato denominado \textbf{magicId} y la segunda sección para almacenar el dato \textbf{size}, un dato numérico de 4 bytes que representará el tamaño final de el bloque. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los bytes que conforman los datos de los bloques se representan concatenados uno a continuación de otro. El tercer segmento tiene un espacio de memoria reservado de 80 bytes para almacenar los datos de la cabecera o \textbf{header}. El cuarto segmento almacenará un dato denominado \textbf{transactionCount} que representa el número de transacciones que contiene el bloque, será un número de tipo entero sin signo y el tamaño puede variar dependiendo del número de transacciones en cada bloque. Por último, el quinto segmento se reserva para almacenar todos los datos de los que se componen cada una de las transacciones, esta sección llamada \textbf{transaction\ data} tendrá un tamaño variable que se corresponde con el tamaño disponible o restante hasta completar el bloque. A continuación una representación gráfica de los 5 segmentos de datos de los que se compone cada bloque.
     
     \begin{figure}[H]
     \centering
@@ -97,7 +97,7 @@
         
         Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
     
-        \item \textbf{size}: En un dato numérico hexadecimal de 4 bytes y de valor variable que representa la longitud en bytes del bloque actual. Está codificado en formato \textit{Little-endian}. Por ejemplo, un bloque con tamaño 152.509 KB tendrá el siguiente valor:
+        \item \textbf{size}: En un dato numérico hexadecimal de 4 bytes de valor variable que representa la longitud en bytes del bloque actual. Está codificado en formato \textit{Little-endian}. Por ejemplo, un bloque con tamaño 152.509 KB tendrá el siguiente valor:
         
         \begin{figure}[H]
         \centering
@@ -108,10 +108,10 @@
         
         \begin{figure}[H]
         \centering
-            $\texttt{0x02000000}$
+            $2_{10} = \texttt{0x00000002} \Rightarrow \texttt{0x02000000}$
         \end{figure}
         
-        \item \textbf{previousBlockHash}: Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}. Este documento toma como referencia los datos correpondientes al bloque \texttt{\#}286819, así pues, el valor de este dato ha de ser el \textit{hash} resultante del bloque anterior, que en este caso es el bloque \texttt{\#}286818.
+        \item \textbf{previousBlockHash}: Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}. Tal y como se explica al inicio del este documento el ejemplo en todo caso toma los datos correspondientes al bloque \texttt{\#}286819, así pues, el valor de este dato ha de ser el \textit{hash} resultante del bloque anterior, que en este caso es el bloque \texttt{\#}286818\footnote{https://blockstream.info/block/000000000000000117c80378b8da0e33559b5997f2ad55e2f7d18ec1975b9717}.
         
         \begin{figure}[H]
         \centering
@@ -140,7 +140,7 @@
             \end{array}
             \right .$
         \end{figure}
-        A continuación un ejemplo escrito en lenguaje C++ que implementa dicho algoritmo:
+        A continuación un ejemplo escrito en lenguaje C++ que implementa dicho algoritmo\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/MerkleTree/merkleTree.cpp}:
         
         \begin{minted}[fontsize=\small]{cpp}
 #include <iostream>
@@ -198,9 +198,9 @@ void printVector(vector<string> v) {
 }
         \end{minted}
         
-        \item \textbf{timeStamp}: Se trata de un número entero sin signo de 4 bytes también llamado \textit{Epoch} o \textit{Tiempo Unix}. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00. Se codifica en formato \textit{Little-endian}.
+        \item \textbf{timeStamp}: Se trata de un número entero sin signo de 4 bytes también llamado \textit{Epoch} o \textit{Tiempo Unix}. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00:00. Se codifica en formato \textit{Little-endian}.
         
-        Un ejemplo de cómo se puede calcular este dato es mediante el siguiente código C. Nótese que las horas se procesan como \textit{GMT+1}.
+        Un ejemplo de cómo se puede calcular este dato es mediante el siguiente código\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/tools/date2epoch.c} escrito en lenguaje C. Nótese que las horas se procesan como \textit{GMT+1}.
         
         \begin{minted}[fontsize=\small]{c}
 #include <stdio.h>
