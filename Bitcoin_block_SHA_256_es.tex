@@ -238,15 +238,65 @@ int main(int argc, char *argv[]) {
         \end{minted}
         
     
-        \item \textbf{targetDifficulty}: En algunos exploradores de bloques también se le llama \textit{bits}. Se trata de un número entero de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números existentes entre $0$ y $2^{256}-1$. Su función es la de definir una variable más a tener en cuenta a la hora de obtener el hash adecuado de un bloque antes de ser minado. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de la variable \textit{targetDifficulty} en ese momento. Así pues, si el \textit{hash} obtenido como candidato a generar un bloque fuera un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea un \textit{hash} válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de la variable \textit{targetDifficulty}, se ha de incrementar el valor de la variable \textit{nonce} y probar otra vez a generar un \textit{hash} nuevo.
+        \item \textbf{targetDifficulty}: A este dato también se le llama simplemente \textit{target} o "\textit{Bits}" si se hace referencia al empaquetado de datos en el bloque. Se trata de un número entero de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números existentes entre $0$ y $2^{256}-1$. El siguiente número sería el valor hexadecimal máximo que utilizan los dispositivos de minado basados en la función \textit{hash} SHA-256.
+        
+            \begin{figure}[H]
+                \centering
+                \scriptsize{
+                $\texttt{0x}\underbrace{\texttt{00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff}}_{256\ bits}$
+                }
+            \end{figure}
+        
+        En el bloque se almacena como un número decimal de coma flotante truncando así su valor, por ejemplo, el valor hexadecimal anterior quedaría representado de la siguiente forma.
+        
+            \begin{figure}[H]
+                \centering
+                \scriptsize{
+                $\texttt{0x}\underbrace{\texttt{00000000ffff0000000000000000000000000000000000000000000000000000}}_{256\ bits}$
+                }
+            \end{figure}
+        
+        Se emplea para calcular la dificultad de minado, lo que la convierte en una de las variables más importantes a tener en cuenta a la hora de obtener el hash adecuado del bloque antes de incorporarlo a la cadena como un bloque válido. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de esta variable \textit{targetDifficulty} en ese momento. De modo que si el \textit{hash} obtenido como candidato a generar un bloque fuese un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de esta variable \textit{targetDifficulty}, este quedaría desestimado, entonces habría que incrementar el valor de la variable \textit{nonce} y repetir todo el proceso para generar un \textit{hash} nuevo. El siguiente gráfico\footnote{http://bitcoin.sipa.be/} muestra la variación de la dificultad a lo largo del tiempo.
         
         \begin{figure}[H]
         \centering
-            \includegraphics[scale=0.39]{img/Bitcoin_TargetDifficulty.png}
-            \caption{Valor de la variable \textit{targetDifficulty} desde enero de 2009 hasta hoy.}
+            \includegraphics[scale=0.51]{img/Bitcoin_TargetDifficulty.png}
+            \caption{Dificultad de minado desde enero de 2009 hasta hoy.}
         \end{figure}
         
-        El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes Bitcoin de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas.
+        A continuación se muestra un fragmento de código escrito en lenguaje C++ que realiza el cálculo necesario y que se puede emplear para hallar la dificultad de minado. Hay que tener en cuenta el valor de la variable \textit{targetDifficulty} en cada caso, por ejemplo en el bloque \texttt{\#}286819 dicho valor es \texttt{0x19015f53}.
+        
+        \begin{minted}[fontsize=\small]{c}
+#include <iostream>
+#include <cmath>
+
+inline float fast_log(float val)
+{
+   int * const exp_ptr = reinterpret_cast <int *>(&val);
+   int x = *exp_ptr;
+   const int log_2 = ((x >> 23) & 255) - 128;
+   x &= ~(255 << 23);
+   x += 127 << 23;
+   *exp_ptr = x;
+
+   val = ((-1.0f/3) * val + 2) * val - 2.0f/3;
+   return ((val + log_2) * 0.69314718f);
+}
+
+float difficulty(unsigned int bits)
+{
+    static double max_body = fast_log(0x00ffff), scaland = fast_log(256);
+    return exp(max_body - fast_log(bits & 0x00ffffff) + scaland * (0x1d - ((bits & 0xff000000) >> 24)));
+}
+
+int main()
+{
+    std::cout << difficulty(0x19015f53) << std::endl;
+    return 0;
+}
+        \end{minted}
+        
+        El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes Bitcoin de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas. Cuanto menor sea el valor de la variable \textit{targetDifficulty} más aumentará la dificultad para hallar un \textit{hash} válido para el bloque.
         
         \item \textbf{nonce}: Se trata de un número entero sin signo aleatorio con una longitud de 32 bits o 4 bytes codificado en formato \textit{Little-endian}. Es el dato que ha de cambiarse tras un intento fallido por encontrar el hash del bloque adecuado, de modo que se incrementa y se han de realizar de nuevo todos los cálculos criptográficos teniendo en cuenta el nuevo valor de esta variable.
         
