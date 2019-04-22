@@ -264,7 +264,7 @@ int main(int argc, char *argv[]) {
             \caption{Dificultad de minado desde enero de 2009 hasta hoy.}
         \end{figure}
         
-        A continuación se muestra un fragmento de código escrito en lenguaje C++ que realiza el cálculo necesario y que se puede emplear para hallar la dificultad de minado. Hay que tener en cuenta el valor de la variable \textit{targetDifficulty} en cada caso, por ejemplo en el bloque \texttt{\#}286819 dicho valor es \texttt{0x19015f53}.
+        A continuación se muestra un fragmento de código escrito en lenguaje C++ que realiza el cálculo necesario y que se puede emplear para hallar la dificultad de minado\footnote{https://en.bitcoin.it/wiki/Difficulty}. Hay que tener en cuenta el valor de la variable \textit{targetDifficulty} en cada caso, por ejemplo en el bloque \texttt{\#}286819 dicho valor es \texttt{0x19015f53}.
         
         \begin{minted}[fontsize=\small]{c}
 #include <iostream>
@@ -285,8 +285,10 @@ inline float fast_log(float val)
 
 float difficulty(unsigned int bits)
 {
-    static double max_body = fast_log(0x00ffff), scaland = fast_log(256);
-    return exp(max_body - fast_log(bits & 0x00ffffff) + scaland * (0x1d - ((bits & 0xff000000) >> 24)));
+    static double max_body = fast_log(0x00ffff),
+                             scaland = fast_log(256);
+    return exp(max_body - fast_log(bits & 0x00ffffff) +
+               scaland * (0x1d - ((bits & 0xff000000) >> 24)));
 }
 
 int main()
