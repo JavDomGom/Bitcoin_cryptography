@@ -682,9 +682,48 @@ int main()
         Se puede comprobar que se cumplen los requisitos del protocolo Bitcoin para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar con los de la cadena de bloques de Bitcoin desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
 
 \section{Almacenamiento en ficheros}
-    Llegados a este punto el lector puede que se pregunte cómo se almacenan todos estos datos en una computadora. Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
+    Dependiendo del sistema operativo que tenga la computadora donde se esté ejecutando el cliente \textit{Bitcoin Core} los archivos que contienen todos los datos de los bloques ya minados se almacenan en diferentes directorios, véase la siguiente tabla:
+    
+    \begin{table}[H]
+    \centering
+    \begin{tabular}{| l | l |} 
+        \hline
+        Sistema operativo & Directorio \\
+        \hline
+        GNU/Linux y Unix & $\sim$/.bitcoin/blocks/ \\
+        \hline
+        MacOS & $\sim$/Library/Application Support/Bitcoin/blocks \\
+        \hline
+        Windows XP & \%APPDATA\%$\char`\\$Bitcoin$\char`\\$blocks \\
+        \hline
+        Windows Vista/7/8 & C:$\char`\\$Users$\char`\\$user$\char`\\$AppData$\char`\\$Roaming$\char`\\$Bitcoin$\char`\\$blocks \\
+        \hline
+    \end{tabular}
+    \label{table:2}
+    \end{table}
+        
+    Para la realización de este documento y sus ejemplos se ha empleado un sistema operativo 100\% libre\footnote{https://www.gnu.org/distros/free-distros.es.html} GNU/Linux. Si se listan los archivos que contiene el directorio $\sim$/.bitcoin/blocks/ se encontrarán muchos archivos del siguiente tipo:
+    
     \begin{figure}[H]
-    \scriptsize{\texttt{$\sim\$$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
+    \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ ls -lrt \\
+-rw------- 1 jdg jdg 134211184 oct  7  2018 blk00000.dat \\
+-rw------- 1 jdg jdg 134182654 oct  7  2018 blk00001.dat \\
+-rw------- 1 jdg jdg 134185203 oct  7  2018 blk00002.dat \\
+-rw------- 1 jdg jdg 134205295 oct  7  2018 blk00003.dat \\
+-rw------- 1 jdg jdg 134206001 oct  7  2018 blk00004.dat \\
+-rw------- 1 jdg jdg 134215469 oct  7  2018 blk00005.dat \\
+... \\
+-rw------- 1 jdg jdg \ 19503795 oct  7  2018 rev00000.dat \\
+-rw------- 1 jdg jdg \ 16777216 oct  7  2018 rev00002.dat \\
+-rw------- 1 jdg jdg \ 16965106 oct  7  2018 rev00001.dat \\
+-rw------- 1 jdg jdg \ 16777216 oct  7  2018 rev00003.dat \\
+...}
+    }
+    \end{figure}
+    
+    Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
+    \begin{figure}[H]
+    \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
     
     \scriptsize{
     \texttt{059621c6  \textbf{\textcolor{red}{f9 be b4 d9} \textcolor{green}{bd 53 02 00}  \textcolor{darkTurquoise}{02 00 00 00 17 97 5b 97}}  |.....S........[.|} \\
