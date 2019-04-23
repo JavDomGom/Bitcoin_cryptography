@@ -6,6 +6,7 @@
 \usepackage{courier}
 \usepackage[dvipsnames]{xcolor}
 \usepackage{relsize}
+\usepackage{amsmath}
 
 \definecolor{red}{rgb}{0.95,0.12,0.14}
 \definecolor{green}{rgb}{0.47,0.58,0.17}
@@ -238,7 +239,7 @@ int main(int argc, char *argv[]) {
         \end{minted}
         
     
-        \item \textbf{targetDifficulty}: A este dato también se le llama simplemente \textit{target} o "\textit{Bits}" si se hace referencia al empaquetado de datos en el bloque. Se trata de un número entero de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números existentes entre $0$ y $2^{256}-1$. El siguiente número sería el valor hexadecimal máximo que utilizan los dispositivos de minado basados en la función \textit{hash} SHA-256.
+        \item \textbf{targetDifficulty}: A este dato también se le llama simplemente \textit{target} o "\textit{Bits}" si se hace referencia al empaquetado de datos en el bloque. Se trata de un número entero de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números existentes entre $0$ y $2^{256}-1$. El siguiente número sería el valor hexadecimal máximo que podría tomar la variable \textit{targetDifficulty}.
         
             \begin{figure}[H]
                 \centering
@@ -247,7 +248,7 @@ int main(int argc, char *argv[]) {
                 }
             \end{figure}
         
-        En el bloque se almacena como un número decimal de coma flotante truncando así su valor, por ejemplo, el valor hexadecimal anterior quedaría representado de la siguiente forma.
+        En el bloque se almacena como un número decimal de coma flotante truncando, por ejemplo, el valor hexadecimal anterior quedaría representado de la siguiente forma.
         
             \begin{figure}[H]
                 \centering
@@ -256,15 +257,14 @@ int main(int argc, char *argv[]) {
                 }
             \end{figure}
         
-        Se emplea para calcular la dificultad de minado, lo que la convierte en una de las variables más importantes a tener en cuenta a la hora de obtener el hash adecuado del bloque antes de incorporarlo a la cadena como un bloque válido. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de esta variable \textit{targetDifficulty} en ese momento. De modo que si el \textit{hash} obtenido como candidato a generar un bloque fuese un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de esta variable \textit{targetDifficulty}, este quedaría desestimado, entonces habría que incrementar el valor de la variable \textit{nonce} y repetir todo el proceso para generar un \textit{hash} nuevo. El siguiente gráfico\footnote{http://bitcoin.sipa.be/} muestra la variación de la dificultad a lo largo del tiempo.
+        La dificultad es el resultado de dividir el valor máximo entre el valor actual de la variable \textit{targetDifficulty}, tal y como se muestra en la siguiente fórmula.
         
-        \begin{figure}[H]
-        \centering
-            \includegraphics[scale=0.51]{img/Bitcoin_TargetDifficulty.png}
-            \caption{Dificultad de minado desde enero de 2009 hasta hoy.}
-        \end{figure}
+            \begin{figure}[H]
+                \centering
+                $Dificultad = \cfrac{target \ maximo}{target \ actual} = \cfrac{\texttt{0x00000000ffff0000...00}}{\texttt{0x0000000019015f53...00}}$
+            \end{figure}
         
-        A continuación se muestra un fragmento de código escrito en lenguaje C++ que realiza el cálculo necesario y que se puede emplear para hallar la dificultad de minado\footnote{https://en.bitcoin.it/wiki/Difficulty}. Hay que tener en cuenta el valor de la variable \textit{targetDifficulty} en cada caso, por ejemplo en el bloque \texttt{\#}286819 dicho valor es \texttt{0x19015f53}.
+        A continuación un fragmento de código escrito en lenguaje C++ que realiza el cálculo y que se puede emplear para hallar la dificultad de minado\footnote{https://en.bitcoin.it/wiki/Difficulty}.
         
         \begin{minted}[fontsize=\small]{c}
 #include <iostream>
@@ -298,9 +298,17 @@ int main()
 }
         \end{minted}
         
+        Hay que tener en cuenta el valor de la variable \textit{targetDifficulty} en cada caso, por ejemplo en el bloque \texttt{\#}286819 dicho valor es \texttt{0x19015f53}. Es una de las variables más importantes a tener en cuenta a la hora de obtener el hash adecuado del bloque antes de incorporarlo a la cadena como un bloque válido. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de esta variable \textit{targetDifficulty} en ese momento. De modo que si el \textit{hash} obtenido como candidato a generar un bloque fuese un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de esta variable \textit{targetDifficulty}, este quedaría desestimado, entonces habría que incrementar el valor de la variable \textit{nonce} y repetir todo el proceso para generar un \textit{hash} nuevo. El siguiente gráfico\footnote{http://bitcoin.sipa.be/} muestra la variación de la dificultad a lo largo del tiempo.
+        
+        \begin{figure}[H]
+        \centering
+            \includegraphics[scale=0.51]{img/Bitcoin_TargetDifficulty.png}
+            \caption{Dificultad de minado desde enero de 2009 hasta hoy.}
+        \end{figure}
+        
         El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes Bitcoin de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas. Cuanto menor sea el valor de la variable \textit{targetDifficulty} más aumentará la dificultad para hallar un \textit{hash} válido para el bloque.
         
-        \item \textbf{nonce}: Se trata de un número entero sin signo aleatorio con una longitud de 32 bits o 4 bytes codificado en formato \textit{Little-endian}. Es el dato que ha de cambiarse tras un intento fallido por encontrar el hash del bloque adecuado, de modo que se incrementa y se han de realizar de nuevo todos los cálculos criptográficos teniendo en cuenta el nuevo valor de esta variable.
+        \item \textbf{nonce}: Se trata de un número entero sin signo aleatorio con una longitud de 32 bits o 4 bytes codificado en formato \textit{Little-endian}. Es el dato que ha de cambiarse tras un intento fallido por encontrar el hash del bloque adecuado, de modo que al incrementalo se han de realizar de nuevo todos los cálculos de la función SHA-256 teniendo en cuenta el nuevo valor de esta variable. Siguiendo con el ejemplo del bloque \texttt{\#}286819, este se incorporó a la cadena de bloques con un valor decimal o base 10 para la variable \textit{nonce} de $856192328$, lo que indica casi con total seguridad que se tuvieron que realizar bastantes intentos.
         
         \item \textbf{transactionCount}: En el caso de \textit{transactionCount} el tipo de dato es un entero sin signo de longitud variable. Como el propio nombre indica, dependiendo del número de transacciones que han sido procesadas tendrá un valor numérico u otro.
         
@@ -318,7 +326,7 @@ int main()
     \vspace{3mm}
     
 \section{Construcción de la cadena de entrada M}
-    En este ejemplo se tratarán los datos reales del bloque $\#286819$ de la cadena de bloques de Bitcoin. Este bloque tiene el siguiente \textit{hash}.
+    Siguiendo con el ejemplo del bloque $\#286819$ de la cadena de bloques de Bitcoin, dicho bloque está representado mediante el siguiente \textit{hash}.
     
     \begin{figure}[H]
         \centering
@@ -327,7 +335,7 @@ int main()
         }
     \end{figure}
     
-    Los datos correspondientes a la cabecera o \textit{header} son los siguientes:
+    A continuación los datos correspondientes a la cabecera o \textit{header} del bloque:
     \begin{figure}[H]
     \centering
     \scriptsize{
@@ -342,7 +350,7 @@ int main()
     }
     \end{figure}
     
-    Pasamos los datos decimales a formato hexadecimal:
+    En este punto hay que pasar los datos en formato decimal a formato hexadecimal, de modo que quedarían de la siguiente manera:
     \begin{figure}[H]
     \centering
     \scriptsize{
@@ -357,7 +365,7 @@ int main()
     }
     \end{figure}
     
-    Se reorganizan los datos en formato Little Endian:
+    Ahora hay que reorganizar los datos en formato \textit{Little-Endian}:
     \begin{figure}[H]
     \centering
     \scriptsize{
@@ -372,7 +380,7 @@ int main()
     }
     \end{figure}
     
-    Finalmente se concatenan uno a continuación de otro, empezando por versión, hash del bloque anterior, merkle root, timestamp, bits y nonce, formando una cadena de entrada $M$ de 160 carácteres hexadecimales con con un tamaño total de 640 bits.
+    Finalmente se concatenan uno a continuación de otro, empezando por \textit{version}, seguido del \textit{hash} del bloque anterior, \textit{merkle root}, \textit{timestamp}, \textit{bits} y \textit{nonce}, formando una cadena de entrada $M$ de 160 carácteres hexadecimales con con un tamaño total de 640 bits.
     
     \begin{figure}[H]
     \centering
@@ -671,10 +679,10 @@ int main()
         \centering
             $\scriptsize{\texttt{0000000000000000e067a478024addfecdc93628978aa52d91fabd4292982a50}}$
         \end{figure}
-        Se puede comprobar que se cumplen los requisitos del protocolo Bitcoin para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar verificar con los de la cadena de bloques de Bitcoin desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
+        Se puede comprobar que se cumplen los requisitos del protocolo Bitcoin para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar con los de la cadena de bloques de Bitcoin desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
 
 \section{Almacenamiento en ficheros}
-    Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
+    Llegados a este punto el lector puede que se pregunte cómo se almacenan todos estos datos en una computadora. Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
     \begin{figure}[H]
     \scriptsize{\texttt{$\sim\$$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
     
