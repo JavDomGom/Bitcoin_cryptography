@@ -692,7 +692,7 @@ int main()
         Se puede comprobar que se cumplen los requisitos del protocolo Bitcoin para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar con los de la cadena de bloques de Bitcoin desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
 
 \section{Almacenamiento en ficheros}
-    Dependiendo del sistema operativo que tenga la computadora donde se esté ejecutando el cliente \textit{Bitcoin Core} los archivos que contienen todos los datos de los bloques ya minados se almacenan en diferentes directorios, véase la siguiente tabla:
+    Todos los datos de los bloques que ya han sido minados se escriben en ficheros binarios con el nombre \textbf{blk*.dat}. Estos archivos se almacenan en diferentes directorios dependiendo del sistema operativo que tenga la computadora donde se esté ejecutando el cliente \textit{Bitcoin Core}, véase la siguiente tabla:
     
     \begin{table}[H]
     \centering
@@ -712,7 +712,7 @@ int main()
     \label{table:2}
     \end{table}
         
-    Para la realización de este documento y sus ejemplos se ha empleado un sistema operativo 100\% libre\footnote{https://www.gnu.org/distros/free-distros.es.html} GNU/Linux. Si se listan los archivos que contiene el directorio $\sim$/.bitcoin/blocks/ se encontrarán muchos archivos del siguiente tipo:
+    En este ejemplo se ha empleado un sistema operativo 100\% libre\footnote{https://www.gnu.org/distros/free-distros.es.html} GNU/Linux. Si se listan los archivos que contiene el directorio $\sim$/.bitcoin/blocks/ aparecerán muchos archivos como los siguientes:
     
     \begin{figure}[H]
     \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ ls -lrt \\
@@ -731,7 +731,7 @@ int main()
     }
     \end{figure}
     
-    Así es como se ven los datos de un bloque almacenados en un fichero blk*.dat.
+    Al tratarse de archivos binarios no se puede leer su contenido con un editor de textos tradicional, será necesario utilizar un programa para tal caso, como por ejemplo el programa \textbf{hexdump}\footnote{https://www.freebsd.org/cgi/man.cgi?query=hexdump\&sektion=1}. Una ves abierto cualquiera de los archivos así es como se ven los datos que contiene.
     \begin{figure}[H]
     \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
     
