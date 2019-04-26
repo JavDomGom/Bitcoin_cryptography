@@ -18,24 +18,30 @@
 \author{Javier Domínguez Gómez \\
 \small{jdg@member.fsf.org} \\
 \small{Fingerprint: 94AD 19F4 9005 EEB2 3384 C20F 5BDC C668 D664 8E2B}}
-\date{v0.1.03 - Febrero 2019}
+\date{v0.1.07 - Abril 2019}
 
 \begin{document}
 \maketitle
 
 \tableofcontents{}
 
+\vspace{19mm}
+
 \section{Introducción}
-    Este documento presenta en detalle cada una de las partes de las que se compone un bloque de datos en el criptosistema definido por el protocolo Bitcoin\footnote{https://bitcoin.org/bitcoin.pdf}. Se tratarán algunos aspectos importantes como los diferentes datos, tipos, formatos y la distribución de los mismos en la estructura del bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/SHA-256/Cryptography\_SHA-256\_es.pdf} que se emplean con el fin de generar un \textit{hash} resultante adecuado, es decir, un resultado que cumpla las características definidas en el protocolo Bitcoin. Finalmente este \textit{hash} representará dicho bloque en lo que se conoce como la cadena de bloques, o como el propio creador Satoshi Nakamoto lo llamaba originalmente, \textit{timechain}\footnote{https://bitcointalk.org/index.php?topic=382374.0}. Todos los datos utilizados en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. No existe ninguna razón especial en la elección de este bloque, es uno al azar. El lector puede consultar los datos de este o cualquier otro bloque, bien en la cadena de bloques descargada en su computadora local o bien en un \textit{explorador de bloques online}\footnote{https://www.blockchain.com/en/btc/block-height/286819}, y realizar los mismos cálculos en todos los casos, obviamente obteniendo resultados diferentes.
+    \subsection{Formatos en el texto}
+    A lo largo de este documento el lector encontrará algunas palabras o bloques de texto con diferentes formatos o tipografía. Se mostrarán en letra \textit{cursiva} las palabras en inglés o que hagan referencia a algún término técnico. Resaltadas o en \textbf{negrita} aquellas palabras que describen una propiedad, una variable o un nombre de fichero, y finalmente con tipografía \texttt{Courier} aquellos datos que representen un valor hexadecimal o base 16, o fragmentos de código fuente en diferentes lenguajes de programación.
+    
+    \subsection{Objetivo}
+    Este documento presenta en detalle un análisis criptográfico sobre cada una de las partes de las que se compone un bloque de datos en el criptosistema definido por el protocolo \textit{Bitcoin}\footnote{https://bitcoin.org/bitcoin.pdf}. Se tratarán algunos aspectos importantes como los diferentes datos, tipos, formatos y la distribución de los mismos en la estructura del bloque, así como las operaciones lógico-matemáticas de la función criptográfica SHA-256\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/SHA-256/Cryptography\_SHA-256\_es.pdf} que se emplean con el fin de generar un \textit{hash} resultante adecuado, es decir, un resultado que cumpla las características definidas en el protocolo \textit{Bitcoin}. Finalmente este \textit{hash} representará dicho bloque en lo que se conoce como la cadena de bloques, o como el propio creador Satoshi Nakamoto lo llamaba originalmente, \textit{timechain}\footnote{https://bitcointalk.org/index.php?topic=382374.0}. Todos los datos utilizados en los ejemplos, así como en los cálculos, son datos reales pertenecientes al bloque número \texttt{\#}286819 de la cadena de bloques de \textit{Bitcoin} en la red principal \textit{mainnet}. No existe ninguna razón especial en la elección de este bloque, es uno al azar. El lector puede consultar los datos de este o cualquier otro bloque, bien en la cadena de bloques descargada en su computadora local o bien en un \textit{explorador de bloques online}\footnote{https://www.blockchain.com/en/btc/block-height/286819}, y realizar los mismos cálculos en todos los casos, obviamente obteniendo resultados diferentes.
     
     \subsection{A quién va dirigido}
-    El documento va dirigido a principalmente a lectores familiarizados con la criptología en cualquiera de sus dos ramas: la criptografía y el criptoanálisis. También va dirigido a estudiantes de ciencias de la computación o matemáticas, en general a lectores que todavía no se han adentrado en el campo de del análisis forense criptográfico sobre la información que contiene un bloque de la cadena de bloques de Bitcoin, pero que quieren comprender su funcionamiento al más bajo nivel, a nivel de \textit{bits}. El texto trata de facilitar al lector la información sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el criptosistema planteado por el protocolo Bitcoin. Para ello será necesario tener de antemano unos conocimientos mínimos sobre matemática discreta, \textit{álgebra de Boole}\footnote{https://en.wikipedia.org/wiki/Boolean\_algebra}, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan algunas operaciones lógicas, módulo, rotativas y de desplazamiento de bits.
+    El documento va dirigido a principalmente a lectores familiarizados con la criptología en cualquiera de sus dos ramas: la criptografía y el criptoanálisis. También va dirigido a estudiantes de ciencias de la computación o matemáticas, en general a lectores que todavía no se han adentrado en el campo de del análisis forense criptográfico sobre la información que contiene un bloque de la cadena de bloques de \textit{Bitcoin}, pero que quieren comprender su funcionamiento al más bajo nivel, a nivel de \textit{bits}. El texto trata de facilitar al lector la información sobre los métodos empleados para obtener un \textit{hash} que cumpla una serie de requisitos según el criptosistema planteado por el protocolo \textit{Bitcoin}. Para ello será necesario tener de antemano unos conocimientos mínimos sobre matemática discreta, \textit{álgebra de Boole}\footnote{https://en.wikipedia.org/wiki/Boolean\_algebra}, conversión de datos en diferentes bases como binario, decimal y hexadecimal, y comprender cómo funcionan algunas operaciones lógicas, módulo, rotativas y de desplazamiento de \textit{bits}.
 
 \section{Estructura de datos de un bloque}
     
     \vspace{3mm}
     
-    Cuando se hace referencia a un \textit{bloque} en realidad se está haciendo referencia a un conjunto de datos ordenados en base a unas normas, que en el caso que nos atañe se definen cuando se desarrolla el protocolo Bitcoin, creando así una estructura de datos ordenada y segmentada de forma que sea sencillo identificar cada una de las partes. Los datos se ordenan en 5 secciones principales. La primera sección se reserva para un dato denominado \textbf{magicId}, un dato numérico de 4 bytes y la segunda sección para almacenar el dato \textbf{size}, al igual que el anterior también es un dato numérico de 4 bytes, este representará el tamaño final de el bloque. En los siguientes puntos se explicará en detalle cada uno de los datos. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los bytes que conforman los datos de los bloques se representan concatenados uno a continuación de otro. La siguiente imagen representa la estructura de un bloque en el que se muestra resaltado en color verde el segmento que alberga el dato \textit{magicId} y en amarillo el segmento que alberga el dato \textit{size}, ambos seguidos por el resto de datos del bloque, la zona de color gris punteada.
+    Cuando se hace referencia a un \textit{bloque} en realidad se está haciendo referencia a un conjunto de datos ordenados en base a unas normas, que en el caso que nos atañe se definen cuando se desarrolla el protocolo \textit{Bitcoin}, creando así una estructura de datos ordenada y segmentada de forma que sea sencillo identificar cada una de las partes. Los datos se ordenan en 5 secciones principales. La primera sección se reserva para un dato denominado \textbf{magicId}, un dato numérico de 4 \textit{bytes} y la segunda sección para almacenar el dato \textbf{size}, al igual que el anterior también es un dato numérico de 4 \textit{bytes}, este representará el tamaño final de el bloque. En los siguientes puntos se explicará en detalle cada uno de los datos. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los \textit{bytes} que conforman los datos de los bloques se representan concatenados uno a continuación de otro. La siguiente imagen representa la estructura de un bloque en el que se muestra resaltado en color verde el segmento que alberga el dato \textit{magicId} y en amarillo el segmento que alberga el dato \textit{size}, ambos seguidos por el resto de datos del bloque, la zona de color gris punteada.
     
     \begin{figure}[H]
     \centering
@@ -43,7 +49,7 @@
         \caption{Los dos primeros segmentos de datos concatenados de cada bloque.}
     \end{figure}
     
-    El tercer segmento tiene un espacio de memoria reservado de 80 bytes para almacenar los datos de la cabecera o \textbf{header}. El cuarto segmento almacenará un dato denominado \textbf{transactionCount} que representa el número de transacciones que contiene el bloque, será un número de tipo entero sin signo y el tamaño puede variar dependiendo del número de transacciones en cada bloque. Por último, el quinto segmento se reserva para almacenar todos los datos de los que se componen cada una de las transacciones, esta sección llamada \textbf{transaction\ data} tendrá un tamaño variable que se corresponde con el tamaño disponible o restante hasta completar el bloque. A continuación una representación gráfica de los 5 segmentos de datos de los que se compone cada bloque.
+    El tercer segmento tiene un espacio de memoria reservado de 80 \textit{bytes} para almacenar los datos de la cabecera o \textbf{header}. El cuarto segmento almacenará un dato denominado \textbf{transactionCount} que representa el número de transacciones que contiene el bloque, será un número de tipo entero sin signo y el tamaño puede variar dependiendo del número de transacciones en cada bloque. Por último, el quinto segmento se reserva para almacenar todos los datos de los que se componen cada una de las transacciones, esta sección llamada \textbf{transaction\ data} tendrá un tamaño variable que se corresponde con el tamaño disponible o restante hasta completar el bloque. A continuación una representación gráfica de los 5 segmentos de datos de los que se compone cada bloque.
     
     \begin{figure}[H]
     \centering
@@ -51,7 +57,7 @@
         \caption{Los 5 bloques de datos principales en cada bloque de la cadena.}
     \end{figure}
     
-    El segmento \textbf{header} a su vez se compone de 6 datos que son \textbf{versionNumber}, \textbf{previousBlockHash}, \textbf{merkleRoot}, \textbf{timeStamp} \textbf{targetDifficulty} o \textbf{nonce}. Todos los datos del bloque tienen sus propios atributos, como puede ser el tipo de dato o tipo primitivo, un nombre, el tamaño que ocupa en memoria y el formato en el que este se representará finalmente. En la siguiente tabla se categorizan los datos más significativos y a continuación se explican en detalle.
+    El segmento \textbf{header} a su vez se compone de 6 datos que son \textbf{versionNumber}, \textbf{previousBlockHash}, \textbf{merkleRoot}, \textbf{timeStamp}, \textbf{targetDifficulty} y \textbf{nonce}. Todos los datos del bloque tienen sus propios atributos, como puede ser el tipo de dato o tipo primitivo, un nombre, el tamaño que ocupa en memoria y el formato en el que este se representará finalmente. En la siguiente tabla se categorizan los datos más significativos y a continuación se explican en detalle.
     \begin{table}[H]
     \centering
     \begin{tabular}{| c | l | c | l |} 
@@ -77,12 +83,12 @@
         uint8/16/32/64\_t & transactionCount & 1, 3, 5 o 9 bytes & Big-endian*  \\
         \hline
     \end{tabular}
-    \caption{Principales datos de un bloque en la cadena de bloques de Bitcoin.}
+    \caption{Principales datos de un bloque en la cadena de bloques de \textit{Bitcoin}.}
     \label{table:0}
     \end{table}
     
     \begin{enumerate}
-        \item \textbf{magicID}: En la red de Bitcoin se establecen conexiones entre los nodos con la finalidad de establecer una comunicación para el envío y recepción de datos o mensajes. Los mensajes se envían mediante un canal en el que según van llegando se van concatenando uno detrás de otro. Así pues, cuando se desarrolló el protocolo Bitcoin se vio conveniente añadir un prefijo en cada mensaje anteponiendo este dato de 4 bytes y así poder identificar fácilmente no solo la red de Bitcoin en la que se generan, si no también dónde empieza y termina cada mensaje que circula entre los diferentes nodos de la red. La siguiente tabla muestra los diferentes valores que puede tener la variable \textit{magicID} dependiendo de la red.
+        \item \textbf{magicID}: En la red de \textit{Bitcoin} se establecen conexiones entre los nodos con la finalidad de establecer una comunicación para el envío y recepción de datos o mensajes. Los mensajes se envían mediante un canal en el que según van llegando se van concatenando uno detrás de otro. Así pues, cuando se desarrolló el protocolo \textit{Bitcoin} se vio conveniente añadir un prefijo en cada mensaje anteponiendo este dato de 4 \textit{bytes} y así poder identificar fácilmente no solo la red de \textit{Bitcoin} en la que se generan, si no también dónde empieza y termina cada mensaje que circula entre los diferentes nodos de la red. La siguiente tabla muestra los diferentes valores que puede tener la variable \textit{magicID} dependiendo de la red.
         
         \begin{table}[H]
         \centering
@@ -104,23 +110,23 @@
         \label{table:1}
         \end{table}
         
-        Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de Bitcoin.
+        Se decidió establecer estos valores tan específicos dada la improbabilidad de que los caracteres ASCII que representan se encuentren en un mensaje estándar, tal y como se indica en el archivo \textit{chainparams.cpp}\footnote{https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp\#L99} que lo implementa en el código de \textit{Bitcoin}.
     
-        \item \textbf{size}: En un dato numérico hexadecimal de 4 bytes de valor variable que representa la longitud en bytes del bloque actual. Está codificado en formato \textit{Little-endian}. Por ejemplo, un bloque con tamaño 152.509 KB tendrá el siguiente valor:
+        \item \textbf{size}: En un dato numérico hexadecimal de 4 \textit{bytes} de valor variable que representa la longitud en \textit{bytes} del bloque actual. Está codificado en formato \textit{Little-endian}. Por ejemplo, un bloque con tamaño 152.509 KB tendrá el siguiente valor:
         
         \begin{figure}[H]
         \centering
             $152509_{10} = \texttt{0x000253BD} \Rightarrow \texttt{0xBD530200}$
         \end{figure}
         
-        \item \textbf{versionNumber}: Este dato hexadecimal puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. Tiene un tamaño de 4 bytes y se codifica en formato \textit{Little-endian}, por ejemplo:
+        \item \textbf{versionNumber}: Este dato hexadecimal puede cambiar de valor cuando se actualiza el software y cambia el número de la versión del protocolo. Tiene un tamaño de 4 \textit{bytes} y se codifica en formato \textit{Little-endian}, por ejemplo:
         
         \begin{figure}[H]
         \centering
             $2_{10} = \texttt{0x00000002} \Rightarrow \texttt{0x02000000}$
         \end{figure}
         
-        \item \textbf{previousBlockHash}: Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 bits o 32 bytes codificado en formato \textit{Big-endian}. Tal y como se explica al inicio del este documento el ejemplo en todo caso toma los datos correspondientes al bloque \texttt{\#}286819, así pues, el valor de este dato ha de ser el \textit{hash} resultante del bloque anterior, que en este caso es el bloque \texttt{\#}286818\footnote{https://blockstream.info/block/000000000000000117c80378b8da0e33559b5997f2ad55e2f7d18ec1975b9717}.
+        \item \textbf{previousBlockHash}: Se trata del \textit{hash} o \textit{digest} resultante del bloque anterior tras aplicar las funciones criptográficas utilizando los datos de la cabecera de dicho bloque. Tiene una longitud de 256 \textit{bits} o 32 \textit{bytes} codificado en formato \textit{Big-endian}. Tal y como se explica al inicio del este documento el ejemplo en todo caso toma los datos correspondientes al bloque \texttt{\#}286819, así pues, el valor de este dato ha de ser el \textit{hash} resultante del bloque anterior, que en este caso es el bloque \texttt{\#}286818\footnote{https://blockstream.info/block/000000000000000117c80378b8da0e33559b5997f2ad55e2f7d18ec1975b9717}.
         
         \begin{figure}[H]
         \centering
@@ -129,7 +135,7 @@
         }
         \end{figure}
         
-        \item \textbf{merkleRoot}: Cada vez que una nueva transacción es aceptada el valor de esta variable se modifica. Se trata de un \textit{hash} hexadecimal de 32 bytes codificado en formato \textit{Big-endian}. Para obtener el \textit{hash} final, también llamado \textit{hash root} se han de concatenar los datos de las transacciones ubicados en los nodos hoja del árbol, en grupos de dos. De ese modo, por cada dos transacciones se obtiene un \textit{hash} nuevo que será incluido en un nuevo vector que repetirá la acción hasta llegar al \textit{hash root}.
+        \item \textbf{merkleRoot}: Cada vez que una nueva transacción es aceptada el valor de esta variable se modifica. Se trata de un \textit{hash} hexadecimal de 32 \textit{bytes} codificado en formato \textit{Big-endian}. Para obtener el \textit{hash} final, también llamado \textit{hash root} se han de concatenar los datos de las transacciones ubicados en los nodos hoja del árbol, en grupos de dos. De ese modo, por cada dos transacciones se obtiene un \textit{hash} nuevo que será incluido en un nuevo vector que repetirá la acción hasta llegar al \textit{hash root}.
         
         \begin{figure}[H]
         \centering
@@ -207,7 +213,7 @@ void printVector(vector<string> v) {
 }
         \end{minted}
         
-        \item \textbf{timeStamp}: Se trata de un número entero sin signo de 4 bytes también llamado \textit{Epoch} o \textit{Tiempo Unix}. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00:00. Se codifica en formato \textit{Little-endian}.
+        \item \textbf{timeStamp}: Se trata de un número entero sin signo de 4 \textit{bytes} también llamado \textit{Epoch} o \textit{Tiempo Unix}. Representa el número de segundos que han transcurrido desde el 1 de enero de 1970 a las 00:00:00. Se codifica en formato \textit{Little-endian}.
         
         Un ejemplo de cómo se puede calcular este dato es mediante el siguiente código\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/tools/date2epoch.c} escrito en lenguaje C. Nótese que las horas se procesan como \textit{GMT+1}.
         
@@ -247,7 +253,7 @@ int main(int argc, char *argv[]) {
         \end{minted}
         
     
-        \item \textbf{targetDifficulty}: A este dato también se le llama simplemente \textit{target} o "\textit{Bits}" si se hace referencia al empaquetado de datos en el bloque. Se trata de un número entero de 256 bits representado como un número decimal muy grande, tanto que abarcaría el rango de números existentes entre $0$ y $2^{256}-1$. El siguiente número sería el valor hexadecimal máximo que podría tomar la variable \textit{targetDifficulty}.
+        \item \textbf{targetDifficulty}: A este dato también se le llama simplemente \textit{target} o "\textit{Bits}" si se hace referencia al empaquetado de datos en el bloque. Se trata de un número entero de 256 \textit{bits} representado como un número decimal muy grande, tanto que abarcaría el rango de números existentes entre $0$ y $2^{256}-1$. El siguiente número sería el valor hexadecimal máximo que podría tomar la variable \textit{targetDifficulty}.
         
             \begin{figure}[H]
                 \centering
@@ -306,7 +312,7 @@ int main()
 }
         \end{minted}
         
-        Hay que tener en cuenta el valor de la variable \textit{targetDifficulty} en cada caso, por ejemplo en el bloque \texttt{\#}286819 dicho valor es \texttt{0x19015f53}. Es una de las variables más importantes a tener en cuenta a la hora de obtener el hash adecuado del bloque antes de incorporarlo a la cadena como un bloque válido. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de Bitcoin se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de esta variable \textit{targetDifficulty} en ese momento. De modo que si el \textit{hash} obtenido como candidato a generar un bloque fuese un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de esta variable \textit{targetDifficulty}, este quedaría desestimado, entonces habría que incrementar el valor de la variable \textit{nonce} y repetir todo el proceso para generar un \textit{hash} nuevo. El siguiente gráfico\footnote{http://bitcoin.sipa.be/} muestra la variación de la dificultad a lo largo del tiempo.
+        Hay que tener en cuenta el valor de la variable \textit{targetDifficulty} en cada caso, por ejemplo en el bloque \texttt{\#}286819 dicho valor es \texttt{0x19015f53}. Es una de las variables más importantes a tener en cuenta a la hora de obtener el \textit{hash} adecuado del bloque antes de incorporarlo a la cadena como un bloque válido. Así pues la prueba de trabajo o \textit{Proof of Work} tendrá mayor o menor dificultad. En el protocolo de \textit{Bitcoin} se define una regla que dice que el \textit{hash} del bloque ha de ser un número menor o igual al valor de esta variable \textit{targetDifficulty} en ese momento. De modo que si el \textit{hash} obtenido como candidato a generar un bloque fuese un número menor o igual al de \textit{targetDifficulty} habría posibilidades para que el \textit{hash} candidato sea válido para generar un nuevo bloque, aunque de forma adicional se han de cumplir otras condiciones. Por el contrario, si el \textit{hash} obtenido como candidato fuera un número mayor que el valor de esta variable \textit{targetDifficulty}, este quedaría desestimado, entonces habría que incrementar el valor de la variable \textit{nonce} y repetir todo el proceso para generar un \textit{hash} nuevo. El siguiente gráfico\footnote{http://bitcoin.sipa.be/} muestra la variación de la dificultad a lo largo del tiempo.
         
         \begin{figure}[H]
         \centering
@@ -314,9 +320,9 @@ int main()
             \caption{Dificultad de minado desde enero de 2009 hasta hoy.}
         \end{figure}
         
-        El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes Bitcoin de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas. Cuanto menor sea el valor de la variable \textit{targetDifficulty} más aumentará la dificultad para hallar un \textit{hash} válido para el bloque.
+        El valor de la variable \textit{targetDifficulty} se modifica automáticamente una vez se han generado 2016 bloques, esto sucede aproximadamente cada dos semanas. El nuevo valor se obtiene mediante un cálculo que realizan todos los clientes \textit{Bitcoin} de la red en el que toman el tiempo real que ha llevado generar los 2016 bloques y se obtiene la diferencia porcentual respecto al número de bloques que se esperaba haber calculado en el periodo de dos semanas. Cuanto menor sea el valor de la variable \textit{targetDifficulty} más aumentará la dificultad para hallar un \textit{hash} válido para el bloque.
         
-        \item \textbf{nonce}: Se trata de un número entero sin signo aleatorio con una longitud de 32 bits o 4 bytes codificado en formato \textit{Little-endian}. Es el dato que ha de cambiarse tras un intento fallido por encontrar el hash del bloque adecuado, de modo que al incrementalo se han de realizar de nuevo todos los cálculos de la función SHA-256 teniendo en cuenta el nuevo valor de esta variable. Siguiendo con el ejemplo del bloque \texttt{\#}286819, este se incorporó a la cadena de bloques con un valor decimal o base 10 para la variable \textit{nonce} de $856192328$, lo que indica casi con total seguridad que se tuvieron que realizar bastantes intentos.
+        \item \textbf{nonce}: Se trata de un número entero sin signo aleatorio con una longitud de 32 \textit{bits} o 4 \textit{bytes} codificado en formato \textit{Little-endian}. Es el dato que ha de cambiarse tras un intento fallido por encontrar el \textit{hash} del bloque adecuado, de modo que al incrementalo se han de realizar de nuevo todos los cálculos de la función SHA-256 teniendo en cuenta el nuevo valor de esta variable. Siguiendo con el ejemplo del bloque \texttt{\#}286819, este se incorporó a la cadena de bloques con un valor decimal o base 10 para la variable \textit{nonce} de $856192328$, lo que indica casi con total seguridad que se tuvieron que realizar bastantes intentos.
         
         \item \textbf{transactionCount}: En el caso de \textit{transactionCount} el tipo de dato es un entero sin signo de longitud variable. Como el propio nombre indica, dependiendo del número de transacciones que han sido procesadas tendrá un valor numérico u otro.
         
@@ -327,14 +333,14 @@ int main()
     La siguiente imagen es una captura de pantalla de los datos del bloque $\#286819$ visualizados en un explorador de bloques. Se han resaltado los datos que forman parte de la cabecera o \textit{header} del bloque.
     \begin{figure}[H]
     \centering
-        \includegraphics[scale=0.47]{img/Bitcoin_block_SHA_256_Block_Data}
+        \includegraphics[scale=0.39]{img/Bitcoin_block_SHA_256_Block_Data}
         \caption{Datos empleados para la obtención del \textit{hash} del bloque \#$286819$.}
     \end{figure}
     
     \vspace{3mm}
     
 \section{Construcción de la cadena de entrada M}
-    Siguiendo con el ejemplo del bloque $\#286819$ de la cadena de bloques de Bitcoin, dicho bloque está representado mediante el siguiente \textit{hash}.
+    Siguiendo con el ejemplo del bloque $\#286819$ de la cadena de bloques de \textit{Bitcoin}, dicho bloque está representado mediante el siguiente \textit{hash}.
     
     \begin{figure}[H]
         \centering
@@ -388,7 +394,7 @@ int main()
     }
     \end{figure}
     
-    Finalmente se concatenan uno a continuación de otro, empezando por \textit{version}, seguido del \textit{hash} del bloque anterior, \textit{merkle root}, \textit{timestamp}, \textit{bits} y \textit{nonce}, formando una cadena de entrada $M$ de 160 carácteres hexadecimales con con un tamaño total de 640 bits.
+    Finalmente se concatenan uno a continuación de otro, empezando por \textit{version}, seguido del \textit{hash} del bloque anterior, \textit{merkle root}, \textit{timestamp}, \textit{bits} y \textit{nonce}, formando una cadena de entrada $M$ de 160 carácteres hexadecimales con con un tamaño total de 640 \textit{bits}.
     
     \begin{figure}[H]
     \centering
@@ -405,7 +411,7 @@ int main()
         \end{array}$
     \end{figure}
     
-    Se segmenta la cadena de entrada $M$ en bloques de 32 bits:
+    Se segmenta la cadena de entrada $M$ en bloques de 32 \textit{bits}:
     \begin{figure}[H]
     \centering
         $\begin{array}{rcl}
@@ -424,7 +430,7 @@ int main()
     De este modo se obtiene el mensaje de entrada $M$. Se ha de reservar este dato para utilizarlo más adelante en la función SHA-256 como \textit{input} en la primera ronda.
     
     \subsection{Longitud de la cadena de entrada $M$}
-        Una vez que se ha obtenido la cadena de entrada $M$ en el punto anterior es necesario calcular la longitud de la misma en formato hexadecimal o base 16, es decir, 640 bits que se representan con el valor 280 en hexadecimal.
+        Una vez que se ha obtenido la cadena de entrada $M$ en el punto anterior es necesario calcular la longitud de la misma en formato hexadecimal o base 16, es decir, 640 \textit{bits} que se representan con el valor 280 en hexadecimal.
         \begin{figure}[H]
         \centering
             $|M| = 280\ (640\ bits\ del\ mensaje\ original\ en\ hexadecimal)$
@@ -432,7 +438,7 @@ int main()
         Este dato se ha de reservar para el siguiente punto, ya que será necesario para completar los registros $W_{14}$ y $W_{15}$ de la variable $W_t$ solo en la segunda y tercera ejecución de la función SHA-256.
     
     \subsection{La variable $W_t$}
-        Tal y como se describe en el punto 3 del documento "\textit{Criptografíıa aplicada: Función SHA-256}"\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/SHA-256/Cryptography\_SHA-256\_es.pdf}, la variable $W_{t}$ es un vector de 64 elementos que contiene palabras hexadecimales de 32 bits. Tiene un tamaño o longitud de 2048 bits (256 bytes) y se obtiene mediante la siguiente función recursiva definida por intervalos.
+        Tal y como se describe en el punto 3 del documento "\textit{Criptografíıa aplicada: Función SHA-256}"\footnote{https://github.com/JavierDominguezGomez/Cryptography/blob/master/SHA-256/Cryptography\_SHA-256\_es.pdf}, la variable $W_{t}$ es un vector de 64 elementos que contiene palabras hexadecimales de 32 \textit{bits}. Tiene un tamaño o longitud de 2048 \textit{bits} (256 \textit{bytes}) y se obtiene mediante la siguiente función recursiva definida por intervalos.
             \begin{figure}[H]
             \centering
                 $W_{t} = \left \{
@@ -448,7 +454,7 @@ int main()
                 \includegraphics[scale=0.5]{img/SHA-256-Wt.png}
                 \caption{Representación gráfica de $W_{t}$}
             \end{figure}
-        Las funciones  $\sigma_{0}$ y $\sigma_{1}$ realizan las siguientes operaciones lógicas de compresión con cada uno de los bits de la palabra almacenada en el segmento de $W_t$ que procesan.
+        Las funciones $\sigma_{0}$ y $\sigma_{1}$ realizan las siguientes operaciones lógicas de compresión con cada uno de los \textit{bits} de la palabra almacenada en el segmento de $W_t$ que procesan.
         \begin{figure}[H]
         \centering
             $\begin{array}{l}
@@ -482,18 +488,18 @@ int main()
         \begin{figure}[H]
         \centering
             \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_sigma1.png}
-            \caption{Operación $ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)$ con cada bit.}
+            \caption{Operación $ROT \ R^{17}(x) \oplus ROT \ R^{19}(x) \oplus SHR^{10}(x)$ con cada \textit{bit}.}
         \end{figure}
         
-        Tras el cálculo de $\sigma_{1}(W_{14})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{0xb0d6a141}$. Se ha de reservar este valor para calcular el resultado final. También se muestra la la representación gráfica la operación lógica de compresión $\sigma_{0}$, que aplica sobre el valor del segmento $W_{1}$.
+        Tras el cálculo de $\sigma_{1}(W_{14})$ se obtiene la palabra hexadecimal de 32 \textit{bits} $\texttt{0xb0d6a141}$. Se ha de reservar este valor para calcular el resultado final. También se muestra la la representación gráfica la operación lógica de compresión $\sigma_{0}$, que aplica sobre el valor del segmento $W_{1}$.
         
         \begin{figure}[H]
         \centering
             \includegraphics[scale=0.445]{img/SHA-256-Wt_operacion_sigma0.png}
-            \caption{Operación $ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x)$ con cada bit.}
+            \caption{Operación $ROT \ R^{7}(x) \oplus ROT \ R^{18}(x) \oplus SHR^{3}(x)$ con cada \textit{bit}.}
         \end{figure}
         
-        Tras el cálculo de $\sigma_{0}(W_{1})$ se obtiene la palabra hexadecimal de 32 bits $\texttt{fa380020}$. Una vez realizados los cálculos necesarios para obtener el valor de $\sigma_{1}(W_{14})$ y $\sigma_{0}(W_{1})$ finalmente se ha de realizar la siguiente operación final.
+        Tras el cálculo de $\sigma_{0}(W_{1})$ se obtiene la palabra hexadecimal de 32 \textit{bits} $\texttt{fa380020}$. Una vez realizados los cálculos necesarios para obtener el valor de $\sigma_{1}(W_{14})$ y $\sigma_{0}(W_{1})$ finalmente se ha de realizar la siguiente operación final.
         
         \begin{figure}[H]
         \centering
@@ -505,7 +511,7 @@ int main()
         
         \vspace{3mm}
         
-        Todos los cálculos anteriores también aplican a las reglas criptográficas de los bloques en el protocolo Bitcoin, solo que hay que tener en cuenta que la cadena de entrada $M$ en cada bloque tiene una longitud superior a 512 bits, lo que implica utilizar la función \textit{hash} SHA-256 tres veces, una por cada ronda, y el valor de la longitud de $M$ solo se aplicará en el esquema de relleno de la segunda y tercera ronda. En la primera ronda (\textit{Ronda \texttt{\#}0}) se rellenan los primeros 16 segmentos de la variable $W_t$ con todos los bytes en hexadecimal que quepan, es decir, los primeros 512 bits de $M$, rellenando también los segmentos $W_{14}$ y $W_{15}$. Los 128 bits restantes de la cadena de entrada $M$ que no caben en esta primera ronda se reservan para los primeros 4 registros de $W_t$ de la segunda ronda. Tras la segunda ronda (\textit{Ronda \texttt{\#}1}) se obtiene un \textit{digest} de 256 bits que se utiliza para rellenar los primeros 8 segmentos de $W_t$ en la tercera y última ronda (\textit{Ronda \texttt{\#}2}). La siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
+        Todos los cálculos anteriores también aplican a las reglas criptográficas de los bloques en el protocolo \textit{Bitcoin}, solo que hay que tener en cuenta que la cadena de entrada $M$ en cada bloque tiene una longitud superior a 512 \textit{bits}, lo que implica utilizar la función \textit{hash} SHA-256 tres veces, una por cada ronda, y el valor de la longitud de $M$ solo se aplicará en el esquema de relleno de la segunda y tercera ronda. En la primera ronda (\textit{Ronda \texttt{\#}0}) se rellenan los primeros 16 segmentos de la variable $W_t$ con todos los \textit{bytes} en hexadecimal que quepan, es decir, los primeros 512 \textit{bits} de $M$, rellenando también los segmentos $W_{14}$ y $W_{15}$. Los 128 \textit{bits} restantes de la cadena de entrada $M$ que no caben en esta primera ronda se reservan para los primeros 4 registros de $W_t$ de la segunda ronda. Tras la segunda ronda (\textit{Ronda \texttt{\#}1}) se obtiene un \textit{digest} de 256 \textit{bits} que se utiliza para rellenar los primeros 8 segmentos de $W_t$ en la tercera y última ronda (\textit{Ronda \texttt{\#}2}). La siguiente figura se detalla el contenido de los primeros 16 registros de la variable $W_{t}$ en cada una de las tres veces que se ejecutan las 64 iteraciones de la función SHA-256 para obtener el \textit{digest} en cada caso.
         \begin{figure}[H]
         \centering
             \includegraphics[scale=0.59]{img/Bitcoin_block_SHA_256_W0_W15_x3}
@@ -515,7 +521,7 @@ int main()
         En los siguientes puntos se detalla el esquema de relleno al completo en cada una de las rondas.
         
         \subsection{Primera ronda SHA-256: Ronda 0}
-        La función \textit{hash} SHA-256 realiza 64 ciclos criptográficos en los que procesará una serie de cálculos en los que tiene en cuenta por un lado las 8 palabras hexadecimales de 32 bits asignadas como valor a las variables $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$, y por otro lado la variable $W_t$, que es un vector de 64 elementos ordenados por intervalos. En la primera ronda criptográfica se han iniciar los
+        La función \textit{hash} SHA-256 realiza 64 ciclos criptográficos en los que procesará una serie de cálculos en los que tiene en cuenta por un lado las 8 palabras hexadecimales de 32 \textit{bits} asignadas como valor a las variables $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$, y por otro lado la variable $W_t$, que es un vector de 64 elementos ordenados por intervalos. En la primera ronda criptográfica se han iniciar los
         
         \vspace{3mm}
         
@@ -524,7 +530,7 @@ int main()
         \end{minipage}
         \hfill
         \begin{minipage}{0.67\textwidth}
-         valores de las variables $A_{0}$, $B_{0}$, $C_{0}$, $D_{0}$, $E_{0}$, $F_{0}$, $G_{0}$ y $H_{0}$ con los valores estándar de la función \textit{hash} SHA-256 en su primera iteración, es decir, los 32 primeros bits en hexadecimal o base 16 de la parte fraccionaria de las raíces cuadradas de los primeros 8 números primos.
+         valores de las variables $A_{0}$, $B_{0}$, $C_{0}$, $D_{0}$, $E_{0}$, $F_{0}$, $G_{0}$ y $H_{0}$ con los valores estándar de la función \textit{hash} SHA-256 en su primera iteración, es decir, los 32 primeros \textit{bits} en hexadecimal o base 16 de la parte fraccionaria de las raíces cuadradas de los primeros 8 números primos.
         
         \begin{figure}[H]
         \centering
@@ -536,16 +542,16 @@ int main()
             \end{array}$
         \end{figure}
         
-        En una función SHA-256, cuando el tamaño de la cadena de entrada $M$ es igual o mayor que 512 bits se han de rellenar los primeros 16 elementos del vector $W_t$ con los primeros 512 bits de la cadena principal de entrada $M$, incluidos los elementos $W_{14}$ y $W_{15}$, tal y como se muestra en la imagen. El resto de la cadena $M$ se ha de reservar para la segunda ejecución de la función SHA-256 que se explicará en el siguiente punto.
+        En una función SHA-256, cuando el tamaño de la cadena de entrada $M$ es igual o mayor que 512 \textit{bits} se han de rellenar los primeros 16 elementos del vector $W_t$ con los primeros 512 \textit{bits} de la cadena principal de entrada $M$, incluidos los elementos $W_{14}$ y $W_{15}$, tal y como se muestra en la imagen. El resto de la cadena $M$ se ha de reservar para la segunda ejecución de la función SHA-256 que se explicará en el siguiente punto. Teniendo la cadena $M$ de entrada, las 8 palabras
         \end{minipage}
         
-        \vspace{1mm}
         
-        Teniendo la cadena $M$ de entrada, las 8 palabras iniciales, que irán cambiando en cada una de las 64 iteraciones, y los 64 elementos del vector $W_t$ se puede comenzar a realizar las operaciones de la función SHA-256. El objetivo en esta primera ronda es obtener el primer \textit{hash}, necesario en la segunda ronda.
+        
+        \noindent iniciales, que irán cambiando en cada una de las 64 iteraciones, y los 64 elementos del vector $W_t$ se puede comenzar a realizar las operaciones de la función SHA-256. El objetivo en esta primera ronda es obtener el primer \textit{hash}, necesario en la segunda ronda.
         
         \vspace{3mm}
         
-        Cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
+        Cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
         
         \begin{figure}[H]
         \centering
@@ -570,7 +576,7 @@ int main()
         Se reserva este dato para realizar la segunda ronda SHA-256 en el siguiente punto.
         
         \subsection{Segunda ronda SHA-256: Ronda 1}
-        En la segunda ronda se han volver a realizar los 64 ciclos criptográficos que realiza SHA-256 teniendo en cuenta que el valor de las 8 palabras iniciales $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ en la primera iteración tendrán por valor inicial cada uno de los segmentos de 32 bits correspondientes al \textit{hash} resultante de la primera ronda.
+        En la segunda ronda se han volver a realizar los 64 ciclos criptográficos que realiza SHA-256 teniendo en cuenta que el valor de las 8 palabras iniciales $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ en la primera iteración tendrán por valor inicial cada uno de los segmentos de 32 \textit{bits} correspondientes al \textit{hash} resultante de la primera ronda.
         
         \begin{figure}[H]
         \centering
@@ -587,7 +593,7 @@ int main()
             \end{array}$
         \end{figure}
         
-        En cuanto a los primeros 16 registros de la variable $W_t$ en esta segunda ronda se se utilizarán primero los bits del mensaje $M$ original de 640 bits que no cabían en la ronda anterior.
+        En cuanto a los primeros 16 registros de la variable $W_t$ en esta segunda ronda se se utilizarán primero los \textit{bits} del mensaje $M$ original de 640 \textit{bits} que no cabían en la ronda anterior.
         
         \vspace{3mm}
         
@@ -600,7 +606,7 @@ int main()
         \centering
             $\texttt{dc141787} + \texttt{358b0553} + \texttt{535f0119} + \texttt{48750833}$
         \end{figure}
-        A continuación hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
+        A continuación hay que tomar un \textit{bit} que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al \textit{bit} más alto del \textit{byte}, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
             \begin{figure}[H]
             \centering
                 $10000000_{2} = \texttt{80}_{16}$
@@ -610,10 +616,10 @@ int main()
             \centering
                 $\texttt{486f6c61} + \texttt{206d756e} + \texttt{646f} + \texttt{80}$
             \end{figure}
-        Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Para terminar de completar los
+        Ahora hay que añadir a la cadena una cantidad de \textit{bits} con valor $0$ hasta llegar a 448 \textit{bits} en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Para terminar de completar los
         \end{minipage}
         
-        \noindent primeros 16 segmentos de $W_{t}$ solo queda rellenar los últimos dos bloques de 32 bits $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 bits de longitud, en este caso es $280$. Los valores que irán en los segmentos desde $W_{16}$ hasta $W_{63}$ se obtienen siguiendo las pautas explicadas en el punto 6 de este documento. Al igual que en la primera ronda, cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
+        \noindent primeros 16 segmentos de $W_{t}$ solo queda rellenar los últimos dos bloques de 32 \textit{bits} $W_{14}$ y $W_{15}$ con la longitud del mensaje de entrada $|M|$ en hexadecimal, con tantos ceros por la izquierda como sean necesario para alcanzar 64 \textit{bits} de longitud, en este caso es $280$. Los valores que irán en los segmentos desde $W_{16}$ hasta $W_{63}$ se obtienen siguiendo las pautas explicadas en el punto 6 de este documento. Al igual que en la primera ronda, cuando se hayan realizado las 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
         
         \begin{figure}[H]
         \centering
@@ -643,7 +649,7 @@ int main()
         \end{minipage}
         \hfill
         \begin{minipage}{0.67\textwidth}
-        En esta tercera ronda criptográfica (\textit{Ronda \texttt{\#}2}) se ha de utilizar como mensaje de entrada $M$ el \textit{hash} obtenido en la ronda anterior (\textit{Ronda \texttt{\#}1}). Al igual que en la ronda anterior hay que tomar un bit que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al bit más alto del byte, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
+        En esta tercera ronda criptográfica (\textit{Ronda \texttt{\#}2}) se ha de utilizar como mensaje de entrada $M$ el \textit{hash} obtenido en la ronda anterior (\textit{Ronda \texttt{\#}1}). Al igual que en la ronda anterior hay que tomar un \textit{bit} que represente el número 1 decimal o base 10, es decir $00000001$, este se desplaza al \textit{bit} más alto del \textit{byte}, con lo que se obtiene $10000000$ y finalmente se calcula el valor hexadecimal, que es $80$.
             \begin{figure}[H]
             \centering
                 $10000000_{2} = \texttt{80}_{16}$
@@ -657,12 +663,12 @@ int main()
                 \texttt{0d9c1f89 + 5515d9e6 + 80 }
             \end{array}$
         \end{figure}
-        Ahora hay que añadir a la cadena una cantidad de bits con valor $0$ hasta llegar a 448 bits en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Cuando se hayan realizado las
+        Ahora hay que añadir a la cadena una cantidad de \textit{bits} con valor $0$ hasta llegar a 448 \textit{bits} en total, que es la longitud que abarca todos los intervalos que van desde $W_{0}$ hasta $W_{13}$. Cuando se hayan realizado las
         \end{minipage}
         
         \vspace{1.3mm}
         
-        \noindent 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar  una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
+        \noindent 64 iteraciones SHA-256 con los datos anteriores se ha de realizar una última operación en la que se ha de tomar cada palabra $A$, $B$, $C$, $D$, $E$, $F$, $G$ y $H$ de la primera iteración y realizar una operación $mod\ 2^{32}$ con su homóloga de la última iteración, véase el ejemplo.
         
         \begin{figure}[H]
         \centering
@@ -689,7 +695,7 @@ int main()
         \centering
             $\scriptsize{\texttt{0000000000000000e067a478024addfecdc93628978aa52d91fabd4292982a50}}$
         \end{figure}
-        Se puede comprobar que se cumplen los requisitos del protocolo Bitcoin para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de Bitcoin en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar con los de la cadena de bloques de Bitcoin desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
+        Se puede comprobar que se cumplen los requisitos del protocolo \textit{Bitcoin} para el cálculo del \textit{hash} del bloque \texttt{\#}286819 de la cadena de bloques de \textit{Bitcoin} en la red principal \textit{mainnet}. Los datos empleados en la realización de este documento se pueden comprobar con los de la cadena de bloques de \textit{Bitcoin} desde en cualquier explorador de bloques\footnote{https://www.blockchain.com/en/btc/block-height/286819}.
 
 \section{Almacenamiento en ficheros}
     Todos los datos de los bloques que ya han sido minados se escriben en ficheros binarios con el nombre \textbf{blk*.dat}. Estos archivos se almacenan en diferentes directorios dependiendo del sistema operativo que tenga la computadora donde se esté ejecutando el cliente \textit{Bitcoin Core}, véase la siguiente tabla:
@@ -711,8 +717,9 @@ int main()
     \end{tabular}
     \label{table:2}
     \end{table}
-        
-    En este ejemplo se ha empleado un sistema operativo 100\% libre\footnote{https://www.gnu.org/distros/free-distros.es.html} GNU/Linux. Si se listan los archivos que contiene el directorio $\sim$/.bitcoin/blocks/ aparecerá una lista como la siguiente:
+    
+    \subsection{Listado y lectura de archivos}
+    En este ejemplo se ha empleado un sistema operativo 100\% libre\footnote{https://www.gnu.org/distros/free-distros.es.html} GNU/Linux, así pues hay que posicionarse en el directorio $\sim$/.bitcoin/blocks/. Si se listan los archivos que contiene el directorio aparecerá una lista como la siguiente:
     
     \begin{figure}[H]
     \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ ls -lrt \\
@@ -732,7 +739,7 @@ drwxr-x--- 2 jdg jdg \ \ \ \ \ 4096 oct  7 2018 index}
     }
     \end{figure}
     
-    Entre todos estos archivos los que nos interesan son los que su nombre comienza por \textbf{blk} seguido de unos números y terminando con la extensión \textbf{.dat}. Son archivos binarios, no se puede leer su contenido con un editor de textos tradicional, será necesario utilizar un programa específico para tal caso, como por ejemplo el programa \textbf{hexdump}\footnote{https://www.freebsd.org/cgi/man.cgi?query=hexdump\&sektion=1}. Una vez abierto cualquiera de los archivos, por ejemplo el primer archivo \textbf{blk00000.dat}, así es como se ven los datos que contiene.
+    Entre todos estos archivos los que nos interesan son los que su nombre comienza por \textbf{blk} seguido de unos números y terminando con la extensión \textbf{.dat}. Al tratarse de archivos binarios no se puede leer su contenido con un editor de textos tradicional, será necesario utilizar un programa específico para tal caso, como por ejemplo el programa \textbf{hexdump}\footnote{https://www.freebsd.org/cgi/man.cgi?query=hexdump\&sektion=1}. Una vez abierto cualquiera de los archivos, por ejemplo el primer archivo \textbf{blk00000.dat}, así es como se ven los datos que contiene.
     
     \begin{figure}[H]
     \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ hexdump -C -s 0 -n 288 blk00000.dat \\
@@ -754,9 +761,12 @@ drwxr-x--- 2 jdg jdg \ \ \ \ \ 4096 oct  7 2018 index}
     }
     \end{figure}
     
-    Estos son los primeros bytes del primer archivo de la cadena de bloques de Bitcon, los primeros datos de llamado \textit{bloque génesis}. En este archivo no solo está el primer bloque de la cadena, hay muchos más, ordenados cronológicamente según se van minando y añadiendo a la cadena.
+    Estos son los primeros \textit{bytes} del primer bloque en el primer archivo de la cadena de bloques de Bitcon, también llamado \textit{bloque génesis}. Este primer archivo no solo contiene los datos del primer bloque, hay muchos más, ordenados cronológicamente según se van minando y añadiendo a la cadena. Tal y como se explica al inicio del punto 2 de este documento, los datos de los bloques se van concatenando uno a continuación de otro.
     
-    Siguiendo con el ejemplo del bloque \texttt{\#}286819, en condiciones normales, es decir, siempre y cuando a la cadena de bloques descargada no se le haya aplicado algún tipo de \textit{prune}\footnote{https://en.bitcoin.it/wiki/Running\_Bitcoin\#Command-line\_arguments} o podado, sus datos se encuentran en el archivo \textbf{blk00116.dat}. Los datos del bloque que se quiere analizar no tienen por qué aparecer necesariamente en el inicio del archivo, es bastante probable que los datos comiencen muchos bytes más adelante o en un \textit{offset} mucho mayor desde el inicio del archivo. En este caso concretamente, los datos comienzan a partir del byte número 93725126, en el \textit{offset} número \texttt{059621c6}. En el siguiente ejemplo se ejecuta el programa \textbf{hexdump} con la opción \textbf{-s} seguido del número de bytes desde el que se quiere empezar a visualizar datos, y la opción \textbf{-n} para indicar el número total de bytes que se quieren mostrar por pantalla, en este caso solo 288 bytes, la opción \textbf{-C} es para obtener una salida standard.
+    \vspace{3mm}
+    
+    \subsection{Visualización de datos los datos en el bloque}
+    Siguiendo con el ejemplo del bloque \texttt{\#}286819, en condiciones normales, es decir, siempre y cuando a la cadena de bloques descargada no se le haya aplicado algún tipo de \textit{prune}\footnote{https://en.bitcoin.it/wiki/Running\_Bitcoin\#Command-line\_arguments} o podado, los datos se encuentran en el archivo \textbf{blk00116.dat}. Todos los archivos comienzan con los datos de un bloque pero los datos del bloque que se quiere analizar no tienen por qué encontrarse en esa posición, es bastante probable que los datos comiencen muchos \textit{bytes} más adelante o en un \textit{offset} mucho mayor desde el inicio del archivo. En este caso concreto, los datos comienzan a partir del \textit{byte} número 93725126, en el \textit{offset} número \texttt{059621c6}. En el siguiente ejemplo se ejecuta el programa \textbf{hexdump} con la opción \textbf{-C} para obtener una salida \textit{standard} por pantalla, también con la opción \textbf{-s} seguido del número de  desde el que se quiere empezar a visualizar datos, y la opción \textbf{-n} para indicar el número total de \textit{bytes} que se quieren mostrar, en este caso con 288 \textit{bytes} es suficiente.
     \begin{figure}[H]
     \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
     
@@ -783,5 +793,5 @@ drwxr-x--- 2 jdg jdg \ \ \ \ \ 4096 oct  7 2018 index}
     }
     \end{figure}
     
-    En la columna izquierda se ve el \textit{offset} correspondiente a cada línea, en la parte central los datos del bloque en formato hexadecimal y la columna de la derecha cada uno de los 16 bytes de datos representados en caracteres ASCII\footnote{https://www.ieee.li/computer/ascii.htm}. Se ha resaltado en diferentes colores los diferentes segmentos de datos. En color rojo aparecen los 4 bytes que representan el dato \textbf{magicID}, a continuación en color verde los 4 siguientes bytes el dato \textbf{size} que representa el tamaño final de este bloque. El segmento que sigue en color turquesa son los 80 bytes que representan el \textbf{header}. En color azul un único byte que representa el número de transacciones registradas en el bloque y finalmente en color morado se han resaltado todos los datos correspondientes a las transacciones del bloque. Los datos no terminan en el \textit{offset} \texttt{059622e6}, se ha truncado el bloque en ese punto para une mejor visualización en este documento, pues la cantidad de datos del bloque mostrada en este formato podría abarcar demasiado espacio.
+    En la columna izquierda se ve el \textit{offset} correspondiente a cada línea, en la parte central los datos del bloque en formato hexadecimal y la columna de la derecha cada uno de los 16 datos representados en caracteres ASCII\footnote{https://www.ieee.li/computer/ascii.htm}. Para facilitar la lectura se ha resaltado en diferentes colores los diferentes segmentos de datos. En color rojo aparecen los 4 \textit{bytes} que representan el dato \textbf{magicID}, a continuación en color verde los 4 siguientes \textit{bytes} el dato \textbf{size} que representa el tamaño final de este bloque. El segmento que sigue en color turquesa son los 80 \textit{bytes} que representan el \textbf{header}. En color azul un único \textit{byte} que representa el número de transacciones registradas en el bloque y finalmente en color morado se han resaltado todos los datos correspondientes a las transacciones del bloque. Los datos no terminan en el \textit{offset} \texttt{059622e6}, se ha truncado el bloque en ese punto para une mejor visualización en este documento, pues la cantidad de datos del bloque mostrada en este formato podría abarcar demasiado espacio.
 \end{document}
