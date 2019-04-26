@@ -712,7 +712,7 @@ int main()
     \label{table:2}
     \end{table}
         
-    En este ejemplo se ha empleado un sistema operativo 100\% libre\footnote{https://www.gnu.org/distros/free-distros.es.html} GNU/Linux. Si se listan los archivos que contiene el directorio $\sim$/.bitcoin/blocks/ aparecerán muchos archivos como los siguientes:
+    En este ejemplo se ha empleado un sistema operativo 100\% libre\footnote{https://www.gnu.org/distros/free-distros.es.html} GNU/Linux. Si se listan los archivos que contiene el directorio $\sim$/.bitcoin/blocks/ aparecerá una lista como la siguiente:
     
     \begin{figure}[H]
     \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ ls -lrt \\
@@ -727,11 +727,36 @@ int main()
 -rw------- 1 jdg jdg \ 16777216 oct  7  2018 rev00002.dat \\
 -rw------- 1 jdg jdg \ 16965106 oct  7  2018 rev00001.dat \\
 -rw------- 1 jdg jdg \ 16777216 oct  7  2018 rev00003.dat \\
-...}
+... \\
+drwxr-x--- 2 jdg jdg \ \ \ \ \ 4096 oct  7 2018 index}
     }
     \end{figure}
     
-    Al tratarse de archivos binarios no se puede leer su contenido con un editor de textos tradicional, será necesario utilizar un programa para tal caso, como por ejemplo el programa \textbf{hexdump}\footnote{https://www.freebsd.org/cgi/man.cgi?query=hexdump\&sektion=1}. Una ves abierto cualquiera de los archivos así es como se ven los datos que contiene.
+    Entre todos estos archivos los que nos interesan son los que su nombre comienza por \textbf{blk} seguido de unos números y terminando con la extensión \textbf{.dat}. Son archivos binarios, no se puede leer su contenido con un editor de textos tradicional, será necesario utilizar un programa específico para tal caso, como por ejemplo el programa \textbf{hexdump}\footnote{https://www.freebsd.org/cgi/man.cgi?query=hexdump\&sektion=1}. Una vez abierto cualquiera de los archivos, por ejemplo el primer archivo \textbf{blk00000.dat}, así es como se ven los datos que contiene.
+    
+    \begin{figure}[H]
+    \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ hexdump -C -s 0 -n 288 blk00000.dat \\
+00000000  f9 be b4 d9 1d 01 00 00  01 00 00 00 00 00 00 00  |................| \\
+00000010  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................| \\
+00000020  00 00 00 00 00 00 00 00  00 00 00 00 3b a3 ed fd  |............;...| \\
+00000030  7a 7b 12 b2 7a c7 2c 3e  67 76 8f 61 7f c8 1b c3  |z\{..z.,>gv.a....| \\
+00000040  88 8a 51 32 3a 9f b8 aa  4b 1e 5e 4a 29 ab 5f 49  |..Q2:...K.\^J).\_I| \\
+00000050  ff ff 00 1d 1d ac 2b 7c  01 01 00 00 00 01 00 00  |......+|........| \\
+00000060  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................| \\
+00000070  00 00 00 00 00 00 00 00  00 00 00 00 00 00 ff ff  |................| \\
+00000080  ff ff 4d 04 ff ff 00 1d  01 04 45 54 68 65 20 54  |..M.......EThe T| \\
+00000090  69 6d 65 73 20 30 33 2f  4a 61 6e 2f 32 30 30 39  |imes 03/Jan/2009| \\
+000000a0  20 43 68 61 6e 63 65 6c  6c 6f 72 20 6f 6e 20 62  | Chancellor on b| \\
+000000b0  72 69 6e 6b 20 6f 66 20  73 65 63 6f 6e 64 20 62  |rink of second b| \\
+000000c0  61 69 6c 6f 75 74 20 66  6f 72 20 62 61 6e 6b 73  |ailout for banks| \\
+000000d0  ff ff ff ff 01 00 f2 05  2a 01 00 00 00 43 41 04  |........*....CA.| \\
+000000e0  ...}
+    }
+    \end{figure}
+    
+    Estos son los primeros bytes del primer archivo de la cadena de bloques de Bitcon, los primeros datos de llamado \textit{bloque génesis}. En este archivo no solo está el primer bloque de la cadena, hay muchos más, ordenados cronológicamente según se van minando y añadiendo a la cadena.
+    
+    Siguiendo con el ejemplo del bloque \texttt{\#}286819, en condiciones normales, es decir, siempre y cuando a la cadena de bloques descargada no se le haya aplicado algún tipo de \textit{prune}\footnote{https://en.bitcoin.it/wiki/Running\_Bitcoin\#Command-line\_arguments} o podado, sus datos se encuentran en el archivo \textbf{blk00116.dat}. Los datos del bloque que se quiere analizar no tienen por qué aparecer necesariamente en el inicio del archivo, es bastante probable que los datos comiencen muchos bytes más adelante o en un \textit{offset} mucho mayor desde el inicio del archivo. En este caso concretamente, los datos comienzan a partir del byte número 93725126, en el \textit{offset} número \texttt{059621c6}. En el siguiente ejemplo se ejecuta el programa \textbf{hexdump} con la opción \textbf{-s} seguido del número de bytes desde el que se quiere empezar a visualizar datos, y la opción \textbf{-n} para indicar el número total de bytes que se quieren mostrar por pantalla, en este caso solo 288 bytes, la opción \textbf{-C} es para obtener una salida standard.
     \begin{figure}[H]
     \scriptsize{\texttt{$\sim$/.bitcoin/blocks/\$ hexdump\ -C\ -s\ 93725126\ -n\ 288\ blk00116.dat}}
     
@@ -753,7 +778,10 @@ int main()
     \texttt{059622a6  \textbf{\textcolor{purple}{2e 49 4f 00 00 00 00 01  cb 81 31 95 00 00 00 00}}  |.IO.......1.....|} \\
     \texttt{059622b6  \textbf{\textcolor{purple}{19 76 a9 14 80 ad 90 d4  03 58 1f a3 bf 46 08 6a}}  |.v.......X...F.j|} \\
     \texttt{059622c6  \textbf{\textcolor{purple}{91 b2 d9 d4 12 5d b6 c1  88 ac 00 00 00 00 01 00}}  |.....]..........|} \\
-    \texttt{059622d6  \textbf{\textcolor{purple}{00 00 01 7d 67 7c de 17  3f 8c bf 43 31 27 a8 5e}}  |...\}g|..?..C1'.\textasciicircum|}
+    \texttt{059622d6  \textbf{\textcolor{purple}{00 00 01 7d 67 7c de 17  3f 8c bf 43 31 27 a8 5e}}  |...\}g|..?..C1'.\textasciicircum|
+    \texttt{059622e6} ...}
     }
     \end{figure}
+    
+    En la columna izquierda se ve el \textit{offset} correspondiente a cada línea, en la parte central los datos del bloque en formato hexadecimal y la columna de la derecha cada uno de los 16 bytes de datos representados en caracteres ASCII\footnote{https://www.ieee.li/computer/ascii.htm}. Se ha resaltado en diferentes colores los diferentes segmentos de datos. En color rojo aparecen los 4 bytes que representan el dato \textbf{magicID}, a continuación en color verde los 4 siguientes bytes el dato \textbf{size} que representa el tamaño final de este bloque. El segmento que sigue en color turquesa son los 80 bytes que representan el \textbf{header}. En color azul un único byte que representa el número de transacciones registradas en el bloque y finalmente en color morado se han resaltado todos los datos correspondientes a las transacciones del bloque. Los datos no terminan en el \textit{offset} \texttt{059622e6}, se ha truncado el bloque en ese punto para une mejor visualización en este documento, pues la cantidad de datos del bloque mostrada en este formato podría abarcar demasiado espacio.
 \end{document}
