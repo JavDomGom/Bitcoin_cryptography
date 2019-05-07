@@ -18,7 +18,7 @@
 \author{Javier Domínguez Gómez \\
 \small{jdg@member.fsf.org} \\
 \small{Fingerprint: 94AD 19F4 9005 EEB2 3384 C20F 5BDC C668 D664 8E2B}}
-\date{v0.1.07 - Abril 2019}
+\date{v0.1.09 - Mayo 2019}
 
 \begin{document}
 \maketitle
@@ -41,7 +41,7 @@
     
     \vspace{3mm}
     
-    Cuando se hace referencia a un \textit{bloque} en realidad se está haciendo referencia a un conjunto de datos ordenados en base a unas normas, que en el caso que nos atañe se definen cuando se desarrolla el protocolo \textit{Bitcoin}, creando así una estructura de datos ordenada y segmentada de forma que sea sencillo identificar cada una de las partes. Los datos se ordenan en 5 secciones principales. La primera sección se reserva para un dato denominado \textbf{magicId}, un dato numérico de 4 \textit{bytes} y la segunda sección para almacenar el dato \textbf{size}, al igual que el anterior también es un dato numérico de 4 \textit{bytes}, este representará el tamaño final de el bloque. En los siguientes puntos se explicará en detalle cada uno de los datos. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los \textit{bytes} que conforman los datos de los bloques se representan concatenados uno a continuación de otro. La siguiente imagen representa la estructura de un bloque en el que se muestra resaltado en color verde el segmento que alberga el dato \textit{magicId} y en amarillo el segmento que alberga el dato \textit{size}, ambos seguidos por el resto de datos del bloque, la zona de color gris punteada.
+    Cuando se hace referencia a un \textit{bloque} en realidad se está haciendo referencia a un conjunto de datos ordenados en base a unas normas, que en el caso que nos atañe se definen cuando se desarrolla el protocolo \textit{Bitcoin}, creando así una estructura de datos ordenada y segmentada de forma que sea sencillo identificar cada una de las partes. Los datos se ordenan en 5 secciones principales. La primera sección se reserva para un dato denominado \textbf{magicId}, un dato numérico de 4 \textit{bytes} y la segunda sección para almacenar el dato \textbf{size}, al igual que el anterior también es un dato numérico de 4 \textit{bytes}, este representará el tamaño final del bloque. En los siguientes puntos se explicará en detalle cada uno de los datos. Estos dos segmentos juntos se pueden usar como el delimitador que separa un bloque de otro en la cadena, pues los \textit{bytes} que conforman los datos de los bloques se representan concatenados uno a continuación de otro. La siguiente imagen representa la estructura de un bloque en el que se muestra resaltado en color verde el segmento que alberga el dato \textit{magicId} y en amarillo el segmento que alberga el dato \textit{size}, ambos seguidos por el resto de datos del bloque, la zona de color gris punteada.
     
     \begin{figure}[H]
     \centering
@@ -433,7 +433,7 @@ int main()
         Una vez que se ha obtenido la cadena de entrada $M$ en el punto anterior es necesario calcular la longitud de la misma en formato hexadecimal o base 16, es decir, 640 \textit{bits} que se representan con el valor 280 en hexadecimal.
         \begin{figure}[H]
         \centering
-            $|M| = 280\ (640\ bits\ del\ mensaje\ original\ en\ hexadecimal)$
+            $|M| = \texttt{280}_{16}\ (640\ bits\ del\ mensaje\ original\ en\ hexadecimal)$
         \end{figure}
         Este dato se ha de reservar para el siguiente punto, ya que será necesario para completar los registros $W_{14}$ y $W_{15}$ de la variable $W_t$ solo en la segunda y tercera ejecución de la función SHA-256.
     
